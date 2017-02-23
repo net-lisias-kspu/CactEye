@@ -34,7 +34,6 @@
     <Compile Include="CactEyeCamera.cs" />
     <Compile Include="CactEyeConfig.cs" />
     <Compile Include="CactEyeGyro.cs" />
-    <Compile Include="CactEyeOccultation.cs" />
     <Compile Include="CactEyeOptics.cs" />
     <Compile Include="CactEyePlanetaryProcessor.cs" />
     <Compile Include="CactEyeProcessor.cs" />
