@@ -31,13 +31,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="CactEyeAsteroidProcessor.cs" />
-    <Compile Include="CactEyeAsteroidSpawner.cs" />
     <Compile Include="CactEyeCamera.cs" />
     <Compile Include="CactEyeConfig.cs" />
     <Compile Include="CactEyeGyro.cs" />
     <Compile Include="CactEyeOccultation.cs" />
     <Compile Include="CactEyeOptics.cs" />
+    <Compile Include="CactEyePlanetaryProcessor.cs" />
     <Compile Include="CactEyeProcessor.cs" />
     <Compile Include="CactEyeAPI.cs" />
     <Compile Include="CactEyeWideField.cs" />
@@ -68,6 +67,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\..\Development\Kerbal Space Program Prerelease\KSP_x64_Data\Managed\KSPAssets.dll</HintPath>
     </Reference>
+    <Reference Include="System, Version=2.0.5.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e, processorArchitecture=MSIL" />
     <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\..\Development\Kerbal Space Program Prerelease\KSP_x64_Data\Managed\UnityEngine.dll</HintPath>

@@ -55,8 +55,7 @@ namespace CactEye2
         public static bool GyroDecay = true;
 
         //Specifies whether the Asteroid spawner should be active
-        public static bool AsteroidSpawner = false;
-
+ 
         public void Start()
         {
             ConfigFilePath = KSPUtil.ApplicationRootPath + "GameData/CactEye/Resources/settings.cfg";
@@ -84,10 +83,6 @@ namespace CactEye2
                     if (CactEye2.HasValue("GyroDecay"))
                     {
                         GyroDecay = bool.Parse(CactEye2.GetValue("GyroDecay"));
-                    }
-                    if(CactEye2.HasValue("AsteroidSpawner"))
-                    {
-                        AsteroidSpawner = bool.Parse(CactEye2.GetValue("AsteroidSpawner"));
                     }
                 }
                 else
@@ -117,8 +112,6 @@ namespace CactEye2
             Debug.Log("CactEye 2: SunDamage = " + SunDamage.ToString());
             CactEye2.AddValue("GyroDecay", GyroDecay);
             Debug.Log("CactEye 2: GyroDecay = " + GyroDecay.ToString());
-            CactEye2.AddValue("AsteroidSpawner", AsteroidSpawner);
-            Debug.Log("Cacteye 2: AsteroidSpawner = " + AsteroidSpawner.ToString());
             Settings.Save(ConfigFilePath);
         }
     }

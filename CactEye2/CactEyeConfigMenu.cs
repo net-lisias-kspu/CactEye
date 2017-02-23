@@ -203,8 +203,7 @@ namespace CactEye2
                 DebugMode = CactEyeConfig.DebugMode;
                 SunDamage = CactEyeConfig.SunDamage;
                 GyroDecay = CactEyeConfig.GyroDecay;
-                AsteroidSpawner = CactEyeConfig.AsteroidSpawner;
-                if (CactEyeConfig.DebugMode)
+                 if (CactEyeConfig.DebugMode)
                 {
                     Debug.Log("CactEye 2: Debug: CactEyeConfigMenu enabled!");
                 }
@@ -216,7 +215,6 @@ namespace CactEye2
                 CactEyeConfig.DebugMode = DebugMode;
                 CactEyeConfig.SunDamage = SunDamage;
                 CactEyeConfig.GyroDecay = GyroDecay;
-                CactEyeConfig.AsteroidSpawner = AsteroidSpawner;
                 CactEyeConfig.ApplySettings();
 
                 if (CactEyeConfig.DebugMode)
