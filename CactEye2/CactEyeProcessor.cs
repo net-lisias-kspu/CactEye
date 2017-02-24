@@ -29,6 +29,9 @@ namespace CactEye2
         [KSPField(isPersistant = true)]
         public bool Active = false;
 
+        [KSPField(isPersistant = false)]
+        public bool probe = false;
+
         protected List<ScienceData> StoredData = new List<ScienceData>();
 
         private Vector3d OriginalSunDirection;
