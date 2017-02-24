@@ -14,7 +14,7 @@ namespace CactEye2
         public bool DebugMode = true;
 
         [KSPField(isPersistant = false)]
-        public bool IsSmallOptics = false;
+        public bool isSmallOptics = false;
 
         [KSPField(isPersistant = false)]
         public string CameraTransformName = "CactEyeCam";
@@ -56,12 +56,12 @@ namespace CactEye2
         public override void OnStart(StartState state)
         {
 
-            if (!IsSmallOptics)
+            if (!isSmallOptics)
             {
                 //tie-in with Firespitter.
                 opticsAnimate = GetComponent<ModuleAnimateGeneric>();
             }
-            else if (IsSmallOptics && !SmallApertureOpen)
+            else if (isSmallOptics && !SmallApertureOpen)
             {
                 Events["OpenSmallAperture"].active = true;
             }
@@ -72,9 +72,9 @@ namespace CactEye2
             {
                 TelescopeControlMenu = new TelescopeMenu(temp);
                 TelescopeControlMenu.scienceMultiplier = this.scienceMultiplier;
-                TelescopeControlMenu.SetSmallOptics(IsSmallOptics);
+                TelescopeControlMenu.SetSmallOptics(isSmallOptics);
                 TelescopeControlMenu.SetScopeOpen(IsFunctional);
-                if(!IsSmallOptics)
+                if(!isSmallOptics)
                 {
                     TelescopeControlMenu.SetAperature(opticsAnimate);
                 }
@@ -88,7 +88,7 @@ namespace CactEye2
                 Debug.Log(temp.ToString());
             }
 
-            if (IsSmallOptics && SmallApertureOpen && !IsDamaged)
+            if (isSmallOptics && SmallApertureOpen && !IsDamaged)
             {
                 IsFunctional = true;
             }
@@ -96,7 +96,7 @@ namespace CactEye2
             if (CactEyeConfig.DebugMode)
             {
                 Debug.Log("CactEye 2: Debug: SmallApertureOpen is " + SmallApertureOpen.ToString());
-                Debug.Log("CactEye 2: Debug: IsSmallOptics is " + IsSmallOptics.ToString());
+                Debug.Log("CactEye 2: Debug: isSmallOptics is " + isSmallOptics.ToString());
                 Debug.Log("CactEye 2: Debug: IsFunctional is " + IsFunctional.ToString());
                 Debug.Log("CactEye 2: Debug: IsDamaged is " + IsDamaged.ToString());
             }
@@ -137,7 +137,7 @@ namespace CactEye2
             //If the scope isn't damage, then toggle scope functionality based on the aperture.
             else
             {
-                if (opticsAnimate != null && !IsSmallOptics)
+                if (opticsAnimate != null && !isSmallOptics)
                 {
                     if (opticsAnimate.animTime < 0.5 && IsFunctional)
                     {
