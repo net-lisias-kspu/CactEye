@@ -271,8 +271,6 @@ namespace CactEye2
                     ActiveProcessor = null;
                     Notification = "Image Processor is out of power. Please restore power to telescope";
                     timer = 0f;
-                    Toggle();
-                    return;
                 }
 
                 //Zoom Feedback Label.
@@ -299,13 +297,13 @@ namespace CactEye2
                     GUILayout.BeginHorizontal();
                     FieldOfView = GUILayout.HorizontalSlider(FieldOfView, 0f, 1f);
                     CameraModule.FieldOfView = 0.5f * Mathf.Pow(4f - FieldOfView * (4f - Mathf.Pow(ActiveProcessor.GetMinimumFOV(), (1f / 3f))), 3);
-                    GUILayout.EndHorizontal();
+                    
 
                     //Log spam
                     //Debug.Log("CactEye 2: MinimumFOV = " + ActiveProcessor.GetMinimumFOV().ToString());
                 }
+                
             }
-
             else
             {
                 GUILayout.BeginHorizontal();
@@ -313,6 +311,7 @@ namespace CactEye2
                 GUILayout.Label("Processor not installed; optics module cannot function without an image processor.");
                 GUILayout.EndHorizontal();
             }
+            GUILayout.EndHorizontal();
 
             //Gyro GUI. Active only if the craft has an active gyro
             if (GyroEnabled)
