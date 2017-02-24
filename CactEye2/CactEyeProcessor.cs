@@ -18,7 +18,7 @@ namespace CactEye2
         public float MinimumFOV = 0.1f;
 
         [KSPField(isPersistant = false)]
-        public float maxScience = 0.25f;
+        public float MinimumView = 0.85f;
 
         [KSPField(isPersistant = false)]
         public float consumeRate = 2f;
@@ -31,6 +31,9 @@ namespace CactEye2
 
         [KSPField(isPersistant = false)]
         public bool probe = false;
+
+        [KSPField(isPersistant = false)]
+        public int Level = 0;
 
         protected List<ScienceData> StoredData = new List<ScienceData>();
 
@@ -218,10 +221,6 @@ namespace CactEye2
         {
             var sb = new StringBuilder();
             sb.AppendLine("Tech Type: " + Type);
-
-            sb.AppendLine("Possible Science Gain: " + (maxScience * 100) + "%");
-            if (maxScience < 1)
-                sb.AppendLine("- More advanced processors can gain more science. You can upgrate later with a service mission!");
 
             sb.AppendLine();
 
@@ -411,6 +410,35 @@ namespace CactEye2
 
             
         }
+
+        /* ***********************************************************************************************
+         * Function Name: CheckFOV
+         * Input:   Vector3d Position:      Ship current position in universe space
+         *          CelestialBody target:   Currently targetd celestial body
+         *          float fov:              Current field of view for camera in degrees
+         *          float minimum:          Minimum decimal percent (eg. 95% would be 0.95) that target should take up in view
+         * Output: int  0 = not close enough, 1 = good, 2 = zoomed to close
+         * Purpose:  To check whether the target takes up enough of the view to produce required science.  
+         * ***********************************************************************************************/
+        protected int CheckFOV(Vector3d position, CelestialBody target, float fov, float minimum)
+        {
+            double altitude = target.GetAltitude(position);
+            double size = (2 * Math.Atan((2 * target.Radius) / (2 * altitude))) * (180 / Math.PI);
+            if(size > fov)
+            {
+                return 2;
+            }
+            else if(size < (fov * minimum))
+            {
+                return 0;
+            }
+            else
+            {
+                return 1;
+            }
+        }
+
+        
 
         private void ResetExperimentGUI()
         {
