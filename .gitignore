@@ -47,3 +47,4 @@ CactEye2/bin/
 CactEye2/obj/*
 DistantObjectHook/bin/
 DistantObjectHook/obj/
+*.mdb
