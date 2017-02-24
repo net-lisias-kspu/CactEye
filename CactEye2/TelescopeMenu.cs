@@ -26,9 +26,6 @@ namespace CactEye2
         //Flag that detects if the GUI is enabled or not.
         public bool IsGUIVisible = false;
 
-        //Gui is 80% of screen resolution.
-        private float ScreenToGUIRatio = 0.8f;
-
         //Field of view of the scope camera.
         private float FieldOfView = 0f;
         private float GyroSensitivity = 1f;
@@ -129,7 +126,7 @@ namespace CactEye2
                 {
                     //Grab Reaction Wheels
                     GetReactionWheels();
-                    GetProcessors();
+                    GetProcessors(isSmallOptics);
 
                     //if (ActiveProcessor.GetProcessorType().Contains("Wide Field"))
                     //{
@@ -149,10 +146,7 @@ namespace CactEye2
             {
                 if (ActiveProcessor != null)
                 {
-                    if (ActiveProcessor.GetProcessorType().Contains("Wide Field"))
-                    {
-                        ActiveProcessor.DeactivateProcessor();
-                    }
+                    ActiveProcessor.DeactivateProcessor();
                     ActiveProcessor = null;
                 }
             }
@@ -218,7 +212,7 @@ namespace CactEye2
                 }
             }
             
-            if (FlightGlobals.fetch.VesselTarget != null && ActiveProcessor && ActiveProcessor.GetProcessorType().Contains("Wide Field"))
+            if ((FlightGlobals.fetch.VesselTarget != null || isSmallOptics) && ActiveProcessor)
             {
                 GUI.skin.GetStyle("Label").alignment = TextAnchor.MiddleRight;
                 GUI.Label(new Rect(425f, 188f, 150, 32), "Store Image:");
@@ -234,7 +228,7 @@ namespace CactEye2
                 GUI.skin.GetStyle("Label").alignment = TextAnchor.MiddleCenter;
                 GUI.Label(new Rect(475f, 188f, 150, 32), "Imaging not available.");
             }
-            if (FlightGlobals.fetch.VesselTarget != null && ActiveProcessor && HighLogic.CurrentGame.Mode != Game.Modes.SANDBOX)
+            if (((FlightGlobals.fetch.VesselTarget != null || isSmallOptics) && ActiveProcessor) && HighLogic.CurrentGame.Mode != Game.Modes.SANDBOX)
             {
                 GUI.skin.GetStyle("Label").alignment = TextAnchor.MiddleRight;
                 GUI.Label(new Rect(425f, 252f, 150, 32), "Process Data:");
@@ -277,32 +271,39 @@ namespace CactEye2
                     ActiveProcessor = null;
                     Notification = "Image Processor is out of power. Please restore power to telescope";
                     timer = 0f;
+                    Toggle();
+                    return;
                 }
 
                 //Zoom Feedback Label.
-                string LabelZoom = "Zoom/Magnification: x";
-                if (CameraModule.FieldOfView > 0.0064)
+                if (!isSmallOptics)
                 {
-                    LabelZoom += string.Format("{0:####0.0}", 64 / CameraModule.FieldOfView);
-                }
-                else
-                {
-                    LabelZoom += string.Format("{0:0.00E+0}", (64 / CameraModule.FieldOfView));
-                }
-                GUILayout.EndHorizontal();
-                GUILayout.BeginHorizontal();
-                GUI.skin.GetStyle("Label").alignment = TextAnchor.UpperLeft;
-                GUILayout.Label(LabelZoom);
-                GUILayout.EndHorizontal();
+                    string LabelZoom = "Zoom/Magnification: x";
+                    if (CameraModule.FieldOfView > 0.0064)
+                    {
+                        LabelZoom += string.Format("{0:####0.0}", 64 / CameraModule.FieldOfView);
+                    }
+                    else
+                    {
+                        LabelZoom += string.Format("{0:0.00E+0}", (64 / CameraModule.FieldOfView));
+                    }
 
-                //Zoom Slider Controls.
-                GUILayout.BeginHorizontal();
-                FieldOfView = GUILayout.HorizontalSlider(FieldOfView, 0f, 1f);
-                CameraModule.FieldOfView = 0.5f * Mathf.Pow(4f - FieldOfView * (4f - Mathf.Pow(ActiveProcessor.GetMinimumFOV(), (1f / 3f))), 3);
-                GUILayout.EndHorizontal();
 
-                //Log spam
-                //Debug.Log("CactEye 2: MinimumFOV = " + ActiveProcessor.GetMinimumFOV().ToString());
+                    GUILayout.EndHorizontal();
+                    GUILayout.BeginHorizontal();
+                    GUI.skin.GetStyle("Label").alignment = TextAnchor.UpperLeft;
+                    GUILayout.Label(LabelZoom);
+                    GUILayout.EndHorizontal();
+
+                    //Zoom Slider Controls.
+                    GUILayout.BeginHorizontal();
+                    FieldOfView = GUILayout.HorizontalSlider(FieldOfView, 0f, 1f);
+                    CameraModule.FieldOfView = 0.5f * Mathf.Pow(4f - FieldOfView * (4f - Mathf.Pow(ActiveProcessor.GetMinimumFOV(), (1f / 3f))), 3);
+                    GUILayout.EndHorizontal();
+
+                    //Log spam
+                    //Debug.Log("CactEye 2: MinimumFOV = " + ActiveProcessor.GetMinimumFOV().ToString());
+                }
             }
 
             else
@@ -451,7 +452,7 @@ namespace CactEye2
             //}
 
             //Draw save icon
-            if (FlightGlobals.fetch.VesselTarget != null && ActiveProcessor && ActiveProcessor.GetProcessorType().Contains("Wide Field"))
+            if (FlightGlobals.fetch.VesselTarget != null && ActiveProcessor)
             {
                 if (GUI.Button(new Rect(ScopeRect.xMin + ((0.5f * ScopeRect.width) + 20), ScopeRect.yMin + (ScopeRect.height - 48f), 32, 32), SaveScreenshotTexture))
                 {
@@ -505,6 +506,7 @@ namespace CactEye2
                     ActiveProcessor.Active = true;
                 }
             }
+            
         }
 
         /* ************************************************************************************************
@@ -556,7 +558,7 @@ namespace CactEye2
          * Purpose: This function will generate a list of image processors installed on the telescope
          * craft.
          * ************************************************************************************************/
-        private void GetProcessors()
+        private void GetProcessors(bool bSmallOptics)
         {
             Processors.Clear();
 
@@ -565,9 +567,12 @@ namespace CactEye2
                 CactEyeProcessor cpu = p.GetComponent<CactEyeProcessor>();
                 if (cpu != null)
                 {
-                    if (!Processors.Contains(cpu))
+                    if (isSmallOptics == cpu.probe)
                     {
-                        Processors.Add(cpu);
+                        if (!Processors.Contains(cpu))
+                        {
+                            Processors.Add(cpu);
+                        }
                     }
                 }
             }
@@ -576,8 +581,9 @@ namespace CactEye2
 
             if (Processors.Count<CactEyeProcessor>() > 0)
             {
-                ActiveProcessor = Processors.First<CactEyeProcessor>();
+                ActiveProcessor = Processors.First();
                 CurrentProcessorIndex = 0;
+                ActiveProcessor.Active = true;
 
                 //if (ActiveProcessor.GetProcessorType().Contains("Wide Field"))
                 //{
