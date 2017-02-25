@@ -277,6 +277,7 @@ namespace CactEye2
                 if (!isSmallOptics)
                 {
                     string LabelZoom = "Zoom/Magnification: x";
+                    double sAdjustment = 0;
                     if (CameraModule.FieldOfView > 0.0064)
                     {
                         LabelZoom += string.Format("{0:####0.0}", 64 / CameraModule.FieldOfView);
@@ -285,7 +286,7 @@ namespace CactEye2
                     {
                         LabelZoom += string.Format("{0:0.00E+0}", (64 / CameraModule.FieldOfView));
                     }
-
+                    
 
                     GUILayout.EndHorizontal();
                     GUILayout.BeginHorizontal();
@@ -296,7 +297,8 @@ namespace CactEye2
                     //Zoom Slider Controls.
                     GUILayout.BeginHorizontal();
                     FieldOfView = GUILayout.HorizontalSlider(FieldOfView, 0f, 1f);
-                    CameraModule.FieldOfView = 0.5f * Mathf.Pow(4f - FieldOfView * (4f - Mathf.Pow(ActiveProcessor.GetMinimumFOV(), (1f / 3f))), 3);
+                    sAdjustment = Math.Log(1d / (32d / ActiveProcessor.GetMinimumFOV()));
+                    CameraModule.FieldOfView = 32f * (float)Math.Exp(sAdjustment * FieldOfView);
                     
 
                     //Log spam
