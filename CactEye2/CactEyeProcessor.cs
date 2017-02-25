@@ -422,8 +422,7 @@ namespace CactEye2
          * ***********************************************************************************************/
         protected int CheckFOV(Vector3d position, CelestialBody target, float fov, float minimum)
         {
-            double altitude = target.GetAltitude(position);
-            double size = (2 * Math.Atan((2 * target.Radius) / (2 * altitude))) * (180 / Math.PI);
+            double size = CalcSize(target.Radius, target.GetAltitude(position));
             if(size > fov)
             {
                 return 2;
@@ -438,7 +437,10 @@ namespace CactEye2
             }
         }
 
-        
+        protected double CalcSize(double radius, double altitude)
+        {
+            return (2 * Math.Atan((2 * radius) / (2 * altitude))) / (180 / Math.PI);
+        }
 
         private void ResetExperimentGUI()
         {
