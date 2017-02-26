@@ -94,7 +94,7 @@ namespace CactEye2
          */
         public Texture2D UpdateTexture(CactEyeProcessor CPU, RenderTexture RT, Texture2D Output)
         {
-
+            
             RenderTexture CurrentRT = RenderTexture.active;
             RenderTexture.active = RT;
             //Update position of the cameras
@@ -102,7 +102,10 @@ namespace CactEye2
             {
                 if (Cam != null)
                 {
-                    Cam.transform.position = CameraTransform.position;
+                    if (!Cam.name.Contains("Galaxy"))
+                    {
+                        Cam.transform.position = CameraTransform.position;
+                    }
                     Cam.transform.up = CameraTransform.up;
                     Cam.transform.forward = CameraTransform.forward;
                     if (!RotationLock)
