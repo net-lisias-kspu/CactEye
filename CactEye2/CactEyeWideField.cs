@@ -28,9 +28,6 @@ namespace CactEye2
                 CelestialBody Target = FlightGlobals.GetBodyByName(FlightGlobals.fetch.VesselTarget.GetName());
                 CelestialBody Home = this.vessel.mainBody;
 
- //               CheckAim(FlightGlobals.fetch.activeVessel.transform.forward, FlightGlobals.fetch.activeVessel.transform.position, Target, FOV);
-   //             return "";
-
                 if (Target == FlightGlobals.Bodies[0])
                 {
                     //Cannot target the sun
@@ -135,7 +132,7 @@ namespace CactEye2
 
                 return "";
             }
-            return "";
+            return "Invalid Target";
 
         }
 
