@@ -69,7 +69,7 @@ namespace CactEye2
 
             //Grabbin' textures
             PreviewTexture = GameDatabase.Instance.GetTexture("CactEye/Icons/preview", false);
-            PreviewTexture.filterMode = FilterMode.Point;
+            PreviewTexture.filterMode = FilterMode.Trilinear;
             CrosshairTexture = GameDatabase.Instance.GetTexture("CactEye/Icons/crosshair", false);
             TargetPointerTexture = GameDatabase.Instance.GetTexture("CactEye/Icons/target", false);
             SaveScreenshotTexture = GameDatabase.Instance.GetTexture("CactEye/Icons/save", false);
@@ -126,12 +126,14 @@ namespace CactEye2
                     //Grab Reaction Wheels
                     GetReactionWheels();
                     GetProcessors(isSmallOptics);
-
-                    //if (ActiveProcessor.GetProcessorType().Contains("Wide Field"))
-                    //{
-                    //    ActiveProcessor.ActivateProcessor();
-                    //}
-
+                    if(Processors.Count() == 0)
+                    {
+                        Debug.Log("CactEye 2: No valid processors");
+                    }
+                    else if (ActiveProcessor == null)
+                    {
+                        ActiveProcessor = Processors.First();
+                    }
                     ActiveProcessor.ActivateProcessor();
                 }
                 catch (Exception E)
@@ -203,7 +205,7 @@ namespace CactEye2
             GUI.skin.GetStyle("Label").alignment = TextAnchor.UpperCenter;
             GUI.Label(new Rect(475f, 40f, 150, 32), "Active Processor");
             GUI.Label(new Rect(475f, 72f, 150, 32), ActiveProcessor.GetProcessorType());
-            if (!isSmallOptics)
+            if (!isSmallOptics || (isSmallOptics && !isScopeOpen))
             {
                 if (GUI.Button(new Rect(475f, 124f, 150, 48), ToggleAperatureIcon))
                 {
@@ -211,7 +213,7 @@ namespace CactEye2
                 }
             }
 
-            if ((ValidTarget() || isSmallOptics) && ActiveProcessor && isScopeOpen)
+            if ((ValidTarget()) && ActiveProcessor && isScopeOpen)
             {
                 GUI.skin.GetStyle("Label").alignment = TextAnchor.MiddleRight;
                 GUI.Label(new Rect(425f, 188f, 150, 32), "Store Image:");
@@ -346,6 +348,10 @@ namespace CactEye2
                     //Log spam
                     //Debug.Log("CactEye 2: MinimumFOV = " + ActiveProcessor.GetMinimumFOV().ToString());
                 }
+                else
+                {
+                    FieldOfView = 32;
+                }
 
             }
             else
@@ -451,11 +457,20 @@ namespace CactEye2
         private void DrawTargetPointer()
         {
 
-            if (FlightGlobals.fetch.VesselTarget != null)
+            if (FlightGlobals.fetch.VesselTarget != null || (isSmallOptics && FlightGlobals.fetch.activeVessel.mainBody != FlightGlobals.Bodies[0]))
             {
-                string targetName = FlightGlobals.fetch.VesselTarget.GetName();
-                Vector2 vec = GetTargetPos(FlightGlobals.fetch.VesselTarget.GetTransform().transform.position, ScopeRect.width);
-
+                string targetName;
+                Vector2 vec;
+                if (!isSmallOptics)
+                {
+                    targetName = FlightGlobals.fetch.VesselTarget.GetName();
+                    vec = GetTargetPos(FlightGlobals.fetch.VesselTarget.GetTransform().transform.position, ScopeRect.width);
+                }
+                else
+                {
+                    targetName = FlightGlobals.fetch.activeVessel.mainBody.name;
+                    vec = GetTargetPos(FlightGlobals.fetch.activeVessel.mainBody.transform.position, ScopeRect.width);
+                }
                 if (vec.x > 16 && vec.y > 16 && vec.x < ScopeRect.width - 16 && vec.y < ScopeRect.height - 16)
                 {
                     //                    GUI.DrawTexture(new Rect(vec.x + ScopeRect.xMin - 16, vec.y + ScopeRect.yMin - 16, 32, 32), TargetPointerTexture);
@@ -468,88 +483,6 @@ namespace CactEye2
                     }
                 }
             }
-        }
-
-        /* ************************************************************************************************
-         * Function Name: DrawProcessorControls
-         * Input: None
-         * Output: None
-         * Purpose: This function will draw the four main processor control objects: the screenshot
-         * button, the science button, and the next/previous processor buttons.
-         * The screenshot button will only display and be available if the telescope has a valid
-         * processor installed on the scope.
-         * The science button will only appear if a target is selected, if there is a valid processor
-         * installed, and if the game is not a sandbox game. It will generate a science report based
-         * on the selected target.
-         * The next/previous buttons will only appear if the scope has more than one processor installed,
-         * and will allow the player to cycle through the different processors.
-         * ************************************************************************************************/
-        private void DrawProcessorControls()
-        {
-            //if (!ActiveProcessor.IsActive())
-            //{
-            //    //Craft is out of power.
-            //    Notification = "Image processor is out of power; shutting down processor.";
-            //    timer = 0f;
-            //    Processors.Remove(ActiveProcessor);
-            //}
-
-            //Draw save icon
-            if (ValidTarget() && ActiveProcessor)
-            {
-                if (GUI.Button(new Rect(ScopeRect.xMin + ((0.5f * ScopeRect.width) + 20), ScopeRect.yMin + (ScopeRect.height - 48f), 32, 32), SaveScreenshotTexture))
-                {
-                    //DisplayText("Saved screenshot to " + opticsModule.GetTex(true, targetName));
-                    Notification = " Screenshot saved to " + WriteTextureToDrive(CameraModule.TakeScreenshot(ActiveProcessor));
-                    timer = 0f;
-                }
-            }
-
-            //Draw gather science icon
-            //Atom6 icon from Freepik
-            //<div>Icons made by Freepik from <a href="http://www.flaticon.com" title="Flaticon">www.flaticon.com</a>         is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0">CC BY 3.0</a></div>
-            if (ValidTarget() && ActiveProcessor && HighLogic.CurrentGame.Mode != Game.Modes.SANDBOX && isScopeOpen)
-            {
-                if (GUI.Button(new Rect(ScopeRect.xMin + ((0.5f * ScopeRect.width) - 20), ScopeRect.yMin + (ScopeRect.height - 48f), 32, 32), Atom6Icon))
-                {
-                    //DisplayText("Saved screenshot to " + opticsModule.GetTex(true, targetName));
-                    //ActiveProcessor.GenerateScienceReport(TakeScreenshot(ActiveProcessor.GetType()));
-                    try
-                    {
-                        Notification = ActiveProcessor.DoScience(CameraModule.FieldOfView);
-                    }
-                    catch (Exception e)
-                    {
-                        Notification = "An error occured. Please post that you're having this error on the official CactEye 2 thread on the Kerbal Forums.";
-                        Debug.Log("CactEye 2: Exception 4: An error occured producing a science report!");
-                        Debug.Log(e.ToString());
-                    }
-
-                    timer = 0f;
-                }
-            }
-
-            //Got an off-by-one error in the list somewhere
-            //Previous/Next buttons
-            if (Processors.Count<CactEyeProcessor>() > 1)
-            {
-                //Previous button
-                if (GUI.Button(new Rect(ScopeRect.xMin + ((0.5f * ScopeRect.width) - 72), ScopeRect.yMin + (ScopeRect.height - 48f), 32, 32), Back9Icon))
-                {
-                    ActiveProcessor.Active = false;
-                    ActiveProcessor = GetPrevious(Processors, ActiveProcessor);
-                    ActiveProcessor.Active = true;
-                }
-
-                //Next Button
-                if (GUI.Button(new Rect(ScopeRect.xMin + ((0.5f * ScopeRect.width) + 72), ScopeRect.yMin + (ScopeRect.height - 48f), 32, 32), Forward9Icon))
-                {
-                    ActiveProcessor.Active = false;
-                    ActiveProcessor = GetNext(Processors, ActiveProcessor);
-                    ActiveProcessor.Active = true;
-                }
-            }
-
         }
 
         /* ************************************************************************************************
@@ -627,12 +560,8 @@ namespace CactEye2
                 ActiveProcessor = Processors.First();
                 CurrentProcessorIndex = 0;
                 ActiveProcessor.Active = true;
-
-                //if (ActiveProcessor.GetProcessorType().Contains("Wide Field"))
-                //{
-                //    ActiveProcessor.Active = true;
-                //}
             }
+            
         }
 
         /* ************************************************************************************************
@@ -767,7 +696,7 @@ namespace CactEye2
                     return false;
                 }
             }
-            else if (isSmallOptics)
+            else 
             {
                 return true;
             }
