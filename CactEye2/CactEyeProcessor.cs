@@ -140,7 +140,7 @@ namespace CactEye2
          * function's behavoir will change based on what processor is the active processor on the telescope.
          * Please see the individual definitions in sub classes for further details.
          * ************************************************************************************************/
-        public abstract string DoScience(Vector3 TargetPosition, float scienceMultiplier, float FOV, Texture2D Screenshot);
+        public abstract string DoScience(float FOV);
 
         /* ************************************************************************************************
          * Function Name: OnUpdate
@@ -355,9 +355,9 @@ namespace CactEye2
          * stored science experiments. This simply calls a coroutine, so as to allow execution without 
          * dropping the frame rate.
          * ************************************************************************************************/
-        public void ReviewData(ScienceData Data, Texture2D Screenshot) 
+        public void ReviewData(ScienceData Data) 
         {
-            StartCoroutine(ReviewDataCoroutine(Data, Screenshot));
+            StartCoroutine(ReviewDataCoroutine(Data));
         }
 
         /* ************************************************************************************************
@@ -368,7 +368,7 @@ namespace CactEye2
          * before the end of a frame. This displays the science report dialog box, of which the player can
          * interact with.
          * ************************************************************************************************/
-        public System.Collections.IEnumerator ReviewDataCoroutine(ScienceData Data, Texture2D Screenshot)
+        public System.Collections.IEnumerator ReviewDataCoroutine(ScienceData Data)
         {
             yield return new WaitForEndOfFrame();
 
@@ -402,11 +402,10 @@ namespace CactEye2
 
             ////Lets put a pretty picture on the science dialog.
 //            ScienceStyle = ScienceDialog.guiSkin.box;
-            ScienceStyle.normal.background = Screenshot;
-
+           
 //            ScienceDialog.guiSkin.window.fixedWidth = 587f;
-            ScienceStyle.fixedWidth = 512f;
-            ScienceStyle.fixedHeight = 288f;
+//            ScienceStyle.fixedWidth = 512f;
+//           ScienceStyle.fixedHeight = 288f;
 
             
         }
@@ -420,7 +419,7 @@ namespace CactEye2
          * Output: int  0 = not close enough, 1 = good, 2 = zoomed to close
          * Purpose:  To check whether the target takes up enough of the view to produce required science.  
          * ***********************************************************************************************/
-        protected int CheckFOV(Vector3d position, CelestialBody target, float fov, float minimum)
+        public int CheckFOV(Vector3d position, CelestialBody target, float fov, float minimum)
         {
             double size = CalcSize(target.Radius, target.GetAltitude(position));
             if(size > fov)
@@ -437,9 +436,52 @@ namespace CactEye2
             }
         }
 
+        public bool CheckAim(Vector3d direction, Vector3d position, CelestialBody target, float fov)
+        {
+            
+            double size = CalcSize(target.Radius, target.GetAltitude(position));
+            double targetAngle = Vector3d.Angle(position, target.position);
+            Vector3d targetDir = (target.position - position).normalized;
+            double lookAngle = Vector3d.Angle(direction, targetDir);
+            double lookDifference = Math.Abs(lookAngle - 90);
+//            Debug.logger.Log("CactEye 2: Target Angle: " + targetAngle);
+//            Debug.logger.Log("CactEye 2: Look Angle: " + lookAngle);
+//            Debug.logger.Log("CactEye 2: Difference " + lookDifference);
+            if (lookDifference > fov * 0.5f)
+            {
+                return false;
+            } else
+            {
+                return true;
+            }
+        }
+
         protected double CalcSize(double radius, double altitude)
         {
-            return (2 * Math.Atan((2 * radius) / (2 * altitude))) / (180 / Math.PI);
+            double diameter = radius * 2;
+            double size = 2 * Math.Asin(diameter / (2 * altitude));
+            return size * (180 / Math.PI);
+        }
+        
+        protected bool CheckOccult(Vector3d position, CelestialBody target)
+        {
+            double distToTarget = Vector3d.Distance(position, target.position);
+            for(int x = 0; x < FlightGlobals.Bodies.Count; x++)
+            {
+                CelestialBody curbody = FlightGlobals.Bodies[x];
+                if (target != curbody && Vector3d.Distance(position, curbody.position) < distToTarget && curbody.Radius > target.Radius * 0.5) 
+                {
+                    double oSize = CalcSize(curbody.Radius, curbody.GetAltitude(position));
+                    double aToTarget = Vector3d.Angle(position, target.position);
+                    double aToOcc = Vector3d.Angle(position, curbody.position);
+                    if(Math.Abs(aToTarget - aToOcc) < oSize / 2)
+                    {
+                        return true;
+                    }
+
+                }
+            }
+            return false;
         }
 
         private void ResetExperimentGUI()
