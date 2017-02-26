@@ -9,8 +9,6 @@ namespace CactEye2
 {
     class TelescopeMenu : MonoBehaviour
     {
-        public float scienceMultiplier;
-
         private bool isSmallOptics = false;
         private bool isScopeOpen = false;
 
@@ -213,7 +211,7 @@ namespace CactEye2
                 }
             }
 
-            if ((FlightGlobals.fetch.VesselTarget != null || isSmallOptics) && ActiveProcessor)
+            if ((ValidTarget() || isSmallOptics) && ActiveProcessor && isScopeOpen)
             {
                 GUI.skin.GetStyle("Label").alignment = TextAnchor.MiddleRight;
                 GUI.Label(new Rect(425f, 188f, 150, 32), "Store Image:");
@@ -229,7 +227,7 @@ namespace CactEye2
                 GUI.skin.GetStyle("Label").alignment = TextAnchor.MiddleCenter;
                 GUI.Label(new Rect(475f, 188f, 150, 32), "Imaging not available.");
             }
-            if (((FlightGlobals.fetch.VesselTarget != null || isSmallOptics) && ActiveProcessor) && HighLogic.CurrentGame.Mode != Game.Modes.SANDBOX)
+            if (((ValidTarget() || isSmallOptics) && ActiveProcessor) && HighLogic.CurrentGame.Mode != Game.Modes.SANDBOX && isScopeOpen)
             {
                 GUI.skin.GetStyle("Label").alignment = TextAnchor.MiddleRight;
                 GUI.Label(new Rect(425f, 252f, 150, 32), "Process Data:");
@@ -290,11 +288,9 @@ namespace CactEye2
                 //Close window down if we run out of power
                 if (!ActiveProcessor.IsActive())
                 {
-                    //    Toggle();
-                    //    ScreenMessages.PostScreenMessage("Image processor is out of power. Please restore power to telescope.", 6, ScreenMessageStyle.UPPER_CENTER);
+                    ScreenMessages.PostScreenMessage("Image processor is out of power. Please restore power to telescope.", 6, ScreenMessageStyle.UPPER_CENTER);
                     ActiveProcessor = null;
-                    Notification = "Image Processor is out of power. Please restore power to telescope";
-                    timer = 0f;
+                    Toggle();
                 }
 
                 //Zoom Feedback Label.
@@ -441,7 +437,7 @@ namespace CactEye2
                 if (vec.x > 16 && vec.y > 16 && vec.x < ScopeRect.width - 16 && vec.y < ScopeRect.height - 16)
                 {
                     //                    GUI.DrawTexture(new Rect(vec.x + ScopeRect.xMin - 16, vec.y + ScopeRect.yMin - 16, 32, 32), TargetPointerTexture);
-                    GUI.DrawTexture(new Rect(vec.x + ScopeRect.xMin - 16, vec.y + ScopeRect.yMin - 32, 32, 32), TargetPointerTexture);
+                    GUI.DrawTexture(new Rect(vec.x + ScopeRect.xMin - 16, vec.y + ScopeRect.yMin, 32, 32), TargetPointerTexture);
                     Vector2 size = GUI.skin.GetStyle("Label").CalcSize(new GUIContent(targetName));
                     if (vec.x > 0.5 * size.x && vec.x < ScopeRect.width - (0.5 * size.x) && vec.y < ScopeRect.height - 16 - size.y)
                     {
@@ -724,5 +720,38 @@ namespace CactEye2
             System.IO.File.WriteAllBytes(ScreeshotFolderPath + ScreenshotFilename, Bytes);
             return ScreenshotFilename;
         }
+
+        private bool ValidTarget()
+        {
+            if(!isSmallOptics)
+            {
+                if (FlightGlobals.fetch.activeVessel.targetObject == null)
+                {
+                    return false;
+                }
+                else if (FlightGlobals.fetch.activeVessel.targetObject.GetType() == typeof(CelestialBody))
+                {
+                    if ((CelestialBody)FlightGlobals.fetch.activeVessel.targetObject == FlightGlobals.Bodies[0])
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        return true;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else if (isSmallOptics)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        
     }
 }
