@@ -71,7 +71,6 @@ namespace CactEye2
             try
             {
                 TelescopeControlMenu = new TelescopeMenu(temp);
-                TelescopeControlMenu.scienceMultiplier = this.scienceMultiplier;
                 TelescopeControlMenu.SetSmallOptics(isSmallOptics);
                 TelescopeControlMenu.SetScopeOpen(IsFunctional);
                 if(!isSmallOptics)
