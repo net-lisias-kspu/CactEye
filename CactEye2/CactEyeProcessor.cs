@@ -317,11 +317,19 @@ namespace CactEye2
         {
             //Grab list of available antenneas
             List<IScienceDataTransmitter> AvailableTransmitters = vessel.FindPartModulesImplementing<IScienceDataTransmitter>();
-
-            if (AvailableTransmitters.Count() > 0)
+            IScienceDataTransmitter fastest = null;
+            for (int x = 0; x < AvailableTransmitters.Count; x++)
             {
-                AvailableTransmitters.First().TransmitData(new List<ScienceData>{ Data });
+                if (fastest == null)
+                {
+                    fastest = AvailableTransmitters[x];
+                }
+                else if (fastest.DataRate < AvailableTransmitters[x].DataRate)
+                {
+                    fastest = AvailableTransmitters[x];
+                }
             }
+            fastest.TransmitData(new List<ScienceData> { Data });
 
             ResetExperimentGUI();
         }
@@ -444,9 +452,9 @@ namespace CactEye2
             Vector3d targetDir = (target.position - position).normalized;
             double lookAngle = Vector3d.Angle(direction, targetDir);
             double lookDifference = Math.Abs(lookAngle - 90);
-//            Debug.logger.Log("CactEye 2: Target Angle: " + targetAngle);
-//            Debug.logger.Log("CactEye 2: Look Angle: " + lookAngle);
-//            Debug.logger.Log("CactEye 2: Difference " + lookDifference);
+//            Debug.Log("CactEye 2: Target Angle: " + targetAngle);
+//            Debug.Log("CactEye 2: Look Angle: " + lookAngle);
+//            Debug.Log("CactEye 2: Difference " + lookDifference);
             if (lookDifference > fov * 0.5f)
             {
                 return false;
