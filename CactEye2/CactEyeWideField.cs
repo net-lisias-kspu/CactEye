@@ -79,7 +79,7 @@ namespace CactEye2
                     }
                     return Type + ": Target is occulted by another body.";
                 }
-
+                
                 
 
                 string TargetName = Target.name;
