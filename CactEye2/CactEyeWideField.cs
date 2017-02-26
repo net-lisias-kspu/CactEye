@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace CactEye2
 {
-    class CactEyeWideField: CactEyeProcessor
+    class CactEyeWideField : CactEyeProcessor
     {
 
         /* ************************************************************************************************
@@ -20,152 +20,107 @@ namespace CactEye2
          * if the target is not the sun, if the target is visible in the scope, and if the telescope
          * is zoomed in far enough.
          * ************************************************************************************************/
-        public override string DoScience(Vector3 TargetPosition, float scienceMultiplier, float FOV, Texture2D Screenshot)
+        public override string DoScience(float FOV)
         {
-            CelestialBody Target = FlightGlobals.Bodies.Find(n => n.GetName() == FlightGlobals.fetch.VesselTarget.GetName());
-            CelestialBody Home = this.vessel.mainBody;
+            
+            if (FlightGlobals.fetch.VesselTarget.GetType() == typeof(CelestialBody))
+            {
+                CelestialBody Target = FlightGlobals.GetBodyByName(FlightGlobals.fetch.VesselTarget.GetName());
+                CelestialBody Home = this.vessel.mainBody;
 
-            //Sandbox or Career mode logic handled by gui.
-            //if (HighLogic.CurrentGame.Mode == Game.Modes.SANDBOX)
-            //{
-            //    //CactEyeGUI.DisplayText("Science experiments unavailable in sandbox mode!");
-            //    return;
-            //}
-            if (FlightGlobals.fetch.VesselTarget.GetType().Name != "CelestialBody")
-            {
-                //Invalid target type
-                if (CactEyeConfig.DebugMode)
-                {
-                    Debug.Log("CactEye 2: Wide Field Camera: Invalid Target Type.");
-                }
-                return Type + ": Invalid Target Type.";
-            }
-            else if (Target == FlightGlobals.Bodies[0])
-            {
-                //Cannot target the sun
-                if (CactEyeConfig.DebugMode)
-                {
-                    Debug.Log("CactEye 2: Wide Field Camera: Cannot target the sun.");
-                }
-                return Type + ": Cannot target the sun.";
-            }
-            else if (TargetPosition == new Vector3(-1, -1, 0))
-            {
-                //target not in scope
-                if (CactEyeConfig.DebugMode)
-                {
-                    Debug.Log("CactEye 2: Wide Field Camera: Target not in scope.");
-                }
-                return Type + ": Target not in scope field of view.";
-            }
+ //               CheckAim(FlightGlobals.fetch.activeVessel.transform.forward, FlightGlobals.fetch.activeVessel.transform.position, Target, FOV);
+   //             return "";
 
-            //This has a tendency to be rather tempermental. If a player is getting false "Scope not zoomed in far enough" errors,
-            //then the values here will need to be adjusted.
-            else if (FOV > CactEyeAPI.bodySize[Target] * 50f)
-            {
-                //Scope not zoomed in far enough
-                if (CactEyeConfig.DebugMode)
+                if (Target == FlightGlobals.Bodies[0])
                 {
-                    Debug.Log("CactEye 2: Wide Field Camera: Scope not zoomed in far enough.");
-                    Debug.Log("CactEye 2: Wide Field Camera: " + FOV.ToString());
-                    Debug.Log("CactEye 2: Wide Field Camera: " + (CactEyeAPI.bodySize[Target] * 50f).ToString());
+                    //Cannot target the sun
+                    if (CactEyeConfig.DebugMode)
+                    {
+                        Debug.Log("CactEye 2: Wide Field Camera: Cannot target the sun.");
+                    }
+                    return Type + ": Cannot target the sun.";
                 }
-                return Type + ": Scope not zoomed in far enough.";
-            }
 
-            //Check to see if target is blocked.
-            else if (CactEyeAPI.CheckOccult(Target) != "")
-            {
-                if (CactEyeConfig.DebugMode)
+                if (!CheckAim(FlightGlobals.fetch.activeVessel.transform.forward, FlightGlobals.fetch.activeVessel.transform.position, Target, FOV))
                 {
-                    Debug.Log("CactEye 2: Target is occulted by another body.");
+                    //target not in scope
+                    if (CactEyeConfig.DebugMode)
+                    {
+                        Debug.Log("CactEye 2: Wide Field Camera: Target not in scope.");
+                    }
+                    return Type + ": Target not in scope field of view.";
                 }
-                return Type + ": Target is occulted by another body.";
-            }
 
-            else
-            {
+                int cFOV = CheckFOV(FlightGlobals.ship_position, (CelestialBody)FlightGlobals.ActiveVessel.targetObject, FOV, MinimumView);
+                if (cFOV == 0)
+                {
+                    if (CactEyeConfig.DebugMode)
+                    {
+                        Debug.Log("CactEye 2: Wide Field Camera: Scope not zoomed in far enough.");
+                        Debug.Log("CactEye 2: Wide Field Camera: Field of view: " + FOV.ToString());
+                        Debug.Log("CactEye 2: Wide Field Camera: Target arc size: " + CalcSize(Target.Radius, Target.GetAltitude(FlightGlobals.ship_position)));
+                    }
+                    return Type + ": Scope not zoomed in far enough.";
+                }
+                else if (cFOV == 2)
+                {
+                    if (CactEyeConfig.DebugMode)
+                    {
+                        Debug.Log("CactEye 2: Wide Field Camera: Scope zoomed in to close");
+                        Debug.Log("CactEye 2: Wide Field Camera: " + FOV.ToString());
+                        Debug.Log("CactEye 2: Wide Field Camera: " + CalcSize(Target.Radius, Target.GetAltitude(FlightGlobals.ship_position)));
+                    }
+                    return Type + ": Scope zoomed in to far.";
+                }
 
-                float SciencePoints = 0f;
-                float ScienceAdjustedCap = 0f;
-                float ScienceAvailableCap = 0f;
+                //Check to see if target is blocked.
+                else if (CheckOccult(FlightGlobals.fetch.activeVessel.transform.position, Target))
+                {
+                    if (CactEyeConfig.DebugMode)
+                    {
+                        Debug.Log("CactEye 2: Target is occulted by another body.");
+                    }
+                    return Type + ": Target is occulted by another body.";
+                }
+
+                
+
                 string TargetName = Target.name;
                 ScienceExperiment WideFieldExperiment;
                 ScienceSubject WideFieldSubject;
-
-                bool withParent;
-                CelestialBody parentBody;
                 
-
-                ExperimentID = "CactEyePlanetary";
                 try
                 {
                     WideFieldExperiment = ResearchAndDevelopment.GetExperiment(ExperimentID);
                     WideFieldSubject = ResearchAndDevelopment.GetExperimentSubject(WideFieldExperiment, ExperimentSituations.InSpaceHigh, Target, "VisualObservation" + Target.name);
                     WideFieldSubject.title = "CactEye Visual Planetary Observation of " + Target.name;
-                    SciencePoints = WideFieldExperiment.baseValue * WideFieldExperiment.dataScale * maxScience * scienceMultiplier;
-                    if (CactEyeConfig.DebugMode)
-                    {
-                        Debug.Log("Cacteye 2: SciencePoints: " + SciencePoints);
-                        Debug.Log("Cacteye 2: Current Science: " + WideFieldSubject.science);
-                        Debug.Log("Cacteye 2: Current Cap: " + WideFieldSubject.scienceCap);
-                        Debug.Log("Cacteye 2: ScienceValue: " + WideFieldSubject.scientificValue);
-                        Debug.Log("Cacteye 2: SubjectValue: " + ResearchAndDevelopment.GetSubjectValue(SciencePoints, WideFieldSubject));
-                        Debug.Log("Cacteye 2: RnDScienceValue: " + ResearchAndDevelopment.GetScienceValue(SciencePoints, WideFieldSubject, 1.0f));
-                        Debug.Log("Cacteye 2: RnDReferenceDataValue: " + ResearchAndDevelopment.GetReferenceDataValue(SciencePoints, WideFieldSubject));
 
-                    }
-                    //Modify Science cap and points gathered based on telescope and processor
-                    ScienceAdjustedCap = WideFieldExperiment.scienceCap * WideFieldExperiment.dataScale * maxScience * scienceMultiplier;
-                    
-                    //Since it's not clear how KSP figures science points, reverse engineer based off of what this will return.
-                    ScienceAvailableCap = ScienceAdjustedCap - ((SciencePoints / ResearchAndDevelopment.GetScienceValue(SciencePoints, WideFieldSubject, 1.0f)) * WideFieldSubject.science);
-                    if (CactEyeConfig.DebugMode)
-                    {
-                        Debug.Log("Cacteye 2: Adjusted Cap: " + ScienceAdjustedCap);
-                        Debug.Log("Cacteye 2: Available Cap: " + ScienceAvailableCap);
-                    }
-                    if (ScienceAvailableCap < 0)
-                    {
-                        ScienceAvailableCap = 0;
-                    }
-                    if (SciencePoints > ScienceAvailableCap)
-                    {
-                        SciencePoints = ScienceAvailableCap;
-                    }
-                    
-
-                    if (CactEyeConfig.DebugMode)
-                    {
-                        Debug.Log("CactEye 2: SciencePoints: " + SciencePoints.ToString());
-                    }
-
-
-                    ScienceData Data = new ScienceData(SciencePoints, 1f, 0f, WideFieldSubject.id, WideFieldSubject.title);
+                    float sciencePoints = WideFieldExperiment.baseValue * WideFieldExperiment.dataScale;
+                    ScienceData Data = new ScienceData(sciencePoints, 1f, 0f, WideFieldSubject.id, WideFieldSubject.title);
                     StoredData.Add(Data);
-                    ReviewData(Data, Screenshot);
+                    ReviewData(Data);
                     if (RBWrapper.APIRBReady)
                     {
                         Debug.Log("CactEye 2: Wrapper ready");
-                        
+
                         RBWrapper.CelestialBodyInfo cbi;
 
                         RBWrapper.RBactualAPI.CelestialBodies.TryGetValue(Target, out cbi);
-                        if(!cbi.isResearched) 
+                        if (!cbi.isResearched)
                         {
                             int RBFoundScience = (int)(8f * WideFieldExperiment.dataScale);
-                            RBWrapper.RBactualAPI.FoundBody(RBFoundScience, Target, out withParent, out parentBody);
+                            //RBWrapper.RBactualAPI.FoundBody(RBFoundScience, Target, out withParent, out parentBody);
                         }
-                        else 
+                        else
                         {
                             System.Random rnd = new System.Random();
-                            RBWrapper.RBactualAPI.Research(Target, rnd.Next(1,11));
+                            RBWrapper.RBactualAPI.Research(Target, rnd.Next(1, 11));
                         }
-                        
+
 
                     }
                     else
-                    { 
+                    {
                         Debug.Log("CactEye 2: Wrapper not ready");
                     }
                 }
@@ -180,6 +135,9 @@ namespace CactEye2
 
                 return "";
             }
+            return "";
+
         }
+
     }
 }
