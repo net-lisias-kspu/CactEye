@@ -7,7 +7,7 @@ using KSP.UI.Dialogs;
 
 namespace CactEye2
 {
-    class TelescopeMenu: MonoBehaviour
+    class TelescopeMenu : MonoBehaviour
     {
         public float scienceMultiplier;
 
@@ -47,7 +47,7 @@ namespace CactEye2
         private Texture2D Back9Icon = null;
         private Texture2D Forward9Icon = null;
         private Texture2D ToggleAperatureIcon = null;
-        
+
 
         //private ModuleReactionWheel[] ReactionWheels;
         private List<CactEyeProcessor> Processors = new List<CactEyeProcessor>();
@@ -79,14 +79,14 @@ namespace CactEye2
             Back9Icon = GameDatabase.Instance.GetTexture("CactEye/Icons/back19", false);
             Forward9Icon = GameDatabase.Instance.GetTexture("CactEye/Icons/forward19", false);
             ToggleAperatureIcon = GameDatabase.Instance.GetTexture("CactEye/Icons/ToggleAperature", false);
-            
+
             //Create the window rectangle object
             float StartXPosition = Screen.width * 0.1f;
             float StartYPosition = Screen.height * 0.1f;
             float WindowWidth = 700f;
             float WindowHeight = 500f;
             WindowPosition = new Rect(StartXPosition, StartYPosition, WindowWidth, WindowHeight);
-            
+
             //Attempt to create the Telescope camera object.
             try
             {
@@ -117,6 +117,7 @@ namespace CactEye2
         //Might take a look at using lazy initialization for enabling/disabling the menu object
         public void Toggle()
         {
+
             if (!IsGUIVisible)
             {
                 //Moved to here from the constructor; this should get a new list of gyros
@@ -141,7 +142,7 @@ namespace CactEye2
                     Debug.Log(E.ToString());
                 }
             }
- 
+
             else
             {
                 if (ActiveProcessor != null)
@@ -169,8 +170,8 @@ namespace CactEye2
             ScopeRect = GUILayoutUtility.GetRect(400f, 400f);
             Texture2D ScopeScreen = CameraModule.UpdateTexture(ActiveProcessor);
             GUI.DrawTexture(ScopeRect, ScopeScreen);
-            
-            
+
+
             //Draw the preview texture
             GUI.DrawTexture(new Rect(ScopeRect.xMin, ScopeRect.yMax - 32f, 128f, 32f), PreviewTexture);
             //Draw the crosshair texture
@@ -181,10 +182,10 @@ namespace CactEye2
                 Notification = "";
             }
             GUI.Label(new Rect(ScopeRect.xMin + 16, ScopeRect.yMin + 16, 600, 32), new GUIContent(Notification));
-            
-            
+
+
             ControlRect = GUILayoutUtility.GetRect(300f, 20f);
-            
+
             if (Processors.Count<CactEyeProcessor>() > 1)
             {
                 //Previous button
@@ -204,14 +205,14 @@ namespace CactEye2
             GUI.skin.GetStyle("Label").alignment = TextAnchor.UpperCenter;
             GUI.Label(new Rect(475f, 40f, 150, 32), "Active Processor");
             GUI.Label(new Rect(475f, 72f, 150, 32), ActiveProcessor.GetProcessorType());
-            if(!isSmallOptics)
+            if (!isSmallOptics)
             {
                 if (GUI.Button(new Rect(475f, 124f, 150, 48), ToggleAperatureIcon))
                 {
                     aperature.Toggle();
                 }
             }
-            
+
             if ((FlightGlobals.fetch.VesselTarget != null || isSmallOptics) && ActiveProcessor)
             {
                 GUI.skin.GetStyle("Label").alignment = TextAnchor.MiddleRight;
@@ -238,7 +239,7 @@ namespace CactEye2
                     //ActiveProcessor.GenerateScienceReport(TakeScreenshot(ActiveProcessor.GetType()));
                     try
                     {
-                        Notification = ActiveProcessor.DoScience(GetTargetPos(FlightGlobals.fetch.VesselTarget.GetTransform().position, 500f), scienceMultiplier, CameraModule.FieldOfView, CameraModule.TakeScreenshot(ActiveProcessor));
+                        Notification = ActiveProcessor.DoScience(CameraModule.FieldOfView);
                     }
                     catch (Exception e)
                     {
@@ -249,6 +250,29 @@ namespace CactEye2
 
                     timer = 0f;
                 }
+                GUI.skin.GetStyle("Label").alignment = TextAnchor.MiddleCenter;
+                String targetStatus = "";
+
+                if (!ActiveProcessor.CheckAim(FlightGlobals.ActiveVessel.transform.forward, FlightGlobals.fetch.activeVessel.transform.position, (CelestialBody)FlightGlobals.ActiveVessel.targetObject, CameraModule.FieldOfView))
+                {
+                    targetStatus = "Target not in full view";
+                }
+                else if (ActiveProcessor.CheckFOV(FlightGlobals.fetch.activeVessel.transform.position, (CelestialBody)FlightGlobals.ActiveVessel.targetObject, CameraModule.FieldOfView, ActiveProcessor.MinimumView) == 0)
+                {
+                    targetStatus = "Scope not zoomed in far enough";
+                }
+                else if (ActiveProcessor.CheckFOV(FlightGlobals.fetch.activeVessel.transform.position, (CelestialBody)FlightGlobals.ActiveVessel.targetObject, CameraModule.FieldOfView, ActiveProcessor.MinimumView) == 2)
+                {
+                    targetStatus = "Scope zoomed in to far";
+                }
+                else
+                {
+                    targetStatus = "Ready to produce science";
+                }
+
+                GUI.Label(new Rect(475f, 290f, 150, 32), targetStatus);
+
+
             }
             else
             {
@@ -260,14 +284,14 @@ namespace CactEye2
             GUILayout.BeginHorizontal();
             //Draw Processor controls in bottom center of display, with observation and screenshot buttons in center.
             DrawTargetPointer();
-            
+
             if (ActiveProcessor)
             {
                 //Close window down if we run out of power
                 if (!ActiveProcessor.IsActive())
                 {
-                //    Toggle();
-                //    ScreenMessages.PostScreenMessage("Image processor is out of power. Please restore power to telescope.", 6, ScreenMessageStyle.UPPER_CENTER);
+                    //    Toggle();
+                    //    ScreenMessages.PostScreenMessage("Image processor is out of power. Please restore power to telescope.", 6, ScreenMessageStyle.UPPER_CENTER);
                     ActiveProcessor = null;
                     Notification = "Image Processor is out of power. Please restore power to telescope";
                     timer = 0f;
@@ -286,7 +310,7 @@ namespace CactEye2
                     {
                         LabelZoom += string.Format("{0:0.00E+0}", (64 / CameraModule.FieldOfView));
                     }
-                    
+
 
                     GUILayout.EndHorizontal();
                     GUILayout.BeginHorizontal();
@@ -299,12 +323,12 @@ namespace CactEye2
                     FieldOfView = GUILayout.HorizontalSlider(FieldOfView, 0f, 1f);
                     sAdjustment = Math.Log(1d / (32d / ActiveProcessor.GetMinimumFOV()));
                     CameraModule.FieldOfView = 32f * (float)Math.Exp(sAdjustment * FieldOfView);
-                    
+
 
                     //Log spam
                     //Debug.Log("CactEye 2: MinimumFOV = " + ActiveProcessor.GetMinimumFOV().ToString());
                 }
-                
+
             }
             else
             {
@@ -416,7 +440,7 @@ namespace CactEye2
 
                 if (vec.x > 16 && vec.y > 16 && vec.x < ScopeRect.width - 16 && vec.y < ScopeRect.height - 16)
                 {
-//                    GUI.DrawTexture(new Rect(vec.x + ScopeRect.xMin - 16, vec.y + ScopeRect.yMin - 16, 32, 32), TargetPointerTexture);
+                    //                    GUI.DrawTexture(new Rect(vec.x + ScopeRect.xMin - 16, vec.y + ScopeRect.yMin - 16, 32, 32), TargetPointerTexture);
                     GUI.DrawTexture(new Rect(vec.x + ScopeRect.xMin - 16, vec.y + ScopeRect.yMin - 32, 32, 32), TargetPointerTexture);
                     Vector2 size = GUI.skin.GetStyle("Label").CalcSize(new GUIContent(targetName));
                     if (vec.x > 0.5 * size.x && vec.x < ScopeRect.width - (0.5 * size.x) && vec.y < ScopeRect.height - 16 - size.y)
@@ -474,7 +498,7 @@ namespace CactEye2
                     //ActiveProcessor.GenerateScienceReport(TakeScreenshot(ActiveProcessor.GetType()));
                     try
                     {
-                        Notification = ActiveProcessor.DoScience(GetTargetPos(FlightGlobals.fetch.VesselTarget.GetTransform().position, 500f), scienceMultiplier, CameraModule.FieldOfView, CameraModule.TakeScreenshot(ActiveProcessor));
+                        Notification = ActiveProcessor.DoScience(CameraModule.FieldOfView);
                     }
                     catch (Exception e)
                     {
@@ -507,7 +531,7 @@ namespace CactEye2
                     ActiveProcessor.Active = true;
                 }
             }
-            
+
         }
 
         /* ************************************************************************************************
@@ -688,7 +712,7 @@ namespace CactEye2
             string TargetName = FlightGlobals.fetch.VesselTarget.GetName().ToString();
             string ScreenshotFilename = "";
 
-            
+
 
             //Create CactEye screenshot folder if it doesn't exist
             if (!System.IO.Directory.Exists(ScreeshotFolderPath))
