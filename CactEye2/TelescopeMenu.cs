@@ -227,7 +227,7 @@ namespace CactEye2
                 GUI.skin.GetStyle("Label").alignment = TextAnchor.MiddleCenter;
                 GUI.Label(new Rect(475f, 188f, 150, 32), "Imaging not available.");
             }
-            if (((ValidTarget() || isSmallOptics) && ActiveProcessor) && HighLogic.CurrentGame.Mode != Game.Modes.SANDBOX && isScopeOpen)
+            if ((ValidTarget() && ActiveProcessor) && HighLogic.CurrentGame.Mode != Game.Modes.SANDBOX && isScopeOpen)
             {
                 GUI.skin.GetStyle("Label").alignment = TextAnchor.MiddleRight;
                 GUI.Label(new Rect(425f, 252f, 150, 32), "Process Data:");
@@ -251,21 +251,43 @@ namespace CactEye2
                 GUI.skin.GetStyle("Label").alignment = TextAnchor.MiddleCenter;
                 String targetStatus = "";
 
-                if (!ActiveProcessor.CheckAim(FlightGlobals.ActiveVessel.transform.forward, FlightGlobals.fetch.activeVessel.transform.position, (CelestialBody)FlightGlobals.ActiveVessel.targetObject, CameraModule.FieldOfView))
+                if (!isSmallOptics)
                 {
-                    targetStatus = "Target not in full view";
-                }
-                else if (ActiveProcessor.CheckFOV(FlightGlobals.fetch.activeVessel.transform.position, (CelestialBody)FlightGlobals.ActiveVessel.targetObject, CameraModule.FieldOfView, ActiveProcessor.MinimumView) == 0)
-                {
-                    targetStatus = "Scope not zoomed in far enough";
-                }
-                else if (ActiveProcessor.CheckFOV(FlightGlobals.fetch.activeVessel.transform.position, (CelestialBody)FlightGlobals.ActiveVessel.targetObject, CameraModule.FieldOfView, ActiveProcessor.MinimumView) == 2)
-                {
-                    targetStatus = "Scope zoomed in to far";
+                    if (!ActiveProcessor.CheckAim(FlightGlobals.ActiveVessel.transform.forward, FlightGlobals.fetch.activeVessel.transform.position, (CelestialBody)FlightGlobals.ActiveVessel.targetObject, CameraModule.FieldOfView))
+                    {
+                        targetStatus = "Target not in full view";
+                    }
+                    else if (ActiveProcessor.CheckFOV(FlightGlobals.fetch.activeVessel.transform.position, (CelestialBody)FlightGlobals.ActiveVessel.targetObject, CameraModule.FieldOfView, ActiveProcessor.MinimumView) == 0)
+                    {
+                        targetStatus = "Scope not zoomed in far enough";
+                    }
+                    else if (ActiveProcessor.CheckFOV(FlightGlobals.fetch.activeVessel.transform.position, (CelestialBody)FlightGlobals.ActiveVessel.targetObject, CameraModule.FieldOfView, ActiveProcessor.MinimumView) == 2)
+                    {
+                        targetStatus = "Scope zoomed in to far";
+                    }
+                    else
+                    {
+                        targetStatus = "Ready to produce science";
+                    }
                 }
                 else
                 {
-                    targetStatus = "Ready to produce science";
+                    if (!ActiveProcessor.CheckAim(FlightGlobals.ActiveVessel.transform.forward, FlightGlobals.fetch.activeVessel.transform.position, FlightGlobals.ActiveVessel.mainBody, CameraModule.FieldOfView))
+                    {
+                        targetStatus = "Target not in full view";
+                    }
+                    else if (ActiveProcessor.CheckFOV(FlightGlobals.fetch.activeVessel.transform.position, FlightGlobals.ActiveVessel.mainBody, CameraModule.FieldOfView, ActiveProcessor.MinimumView) == 0)
+                    {
+                        targetStatus = "Camera to close to target";
+                    }
+                    else if (ActiveProcessor.CheckFOV(FlightGlobals.fetch.activeVessel.transform.position, FlightGlobals.ActiveVessel.mainBody, CameraModule.FieldOfView, ActiveProcessor.MinimumView) == 2)
+                    {
+                        targetStatus = "Camera to far from target";
+                    }
+                    else
+                    {
+                        targetStatus = "Ready to produce science";
+                    }
                 }
 
                 GUI.Label(new Rect(475f, 290f, 150, 32), targetStatus);
@@ -473,7 +495,7 @@ namespace CactEye2
             //}
 
             //Draw save icon
-            if (FlightGlobals.fetch.VesselTarget != null && ActiveProcessor)
+            if (ValidTarget() && ActiveProcessor)
             {
                 if (GUI.Button(new Rect(ScopeRect.xMin + ((0.5f * ScopeRect.width) + 20), ScopeRect.yMin + (ScopeRect.height - 48f), 32, 32), SaveScreenshotTexture))
                 {
@@ -486,7 +508,7 @@ namespace CactEye2
             //Draw gather science icon
             //Atom6 icon from Freepik
             //<div>Icons made by Freepik from <a href="http://www.flaticon.com" title="Flaticon">www.flaticon.com</a>         is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0">CC BY 3.0</a></div>
-            if (FlightGlobals.fetch.VesselTarget != null && ActiveProcessor && HighLogic.CurrentGame.Mode != Game.Modes.SANDBOX)
+            if (ValidTarget() && ActiveProcessor && HighLogic.CurrentGame.Mode != Game.Modes.SANDBOX && isScopeOpen)
             {
                 if (GUI.Button(new Rect(ScopeRect.xMin + ((0.5f * ScopeRect.width) - 20), ScopeRect.yMin + (ScopeRect.height - 48f), 32, 32), Atom6Icon))
                 {
