@@ -316,6 +316,7 @@ namespace CactEye2
             SmallApertureOpen = true;
             IsFunctional = true;
             Events["OpenSmallAperture"].active = false;
+            TelescopeControlMenu.SetScopeOpen(true);
         }
     }
 }
