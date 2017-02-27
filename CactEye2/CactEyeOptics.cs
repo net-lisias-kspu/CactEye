@@ -42,9 +42,6 @@ namespace CactEye2
 
         private ModuleAnimateGeneric opticsAnimate;
 
-        //Control Variable that disables functionality if there is an error.
-        //private bool Error = false;
-
         private TelescopeMenu TelescopeControlMenu;
 
         /*
@@ -170,7 +167,15 @@ namespace CactEye2
             //Send updated position information to the telescope gui object.
             if (TelescopeControlMenu != null)
             {
-                TelescopeControlMenu.UpdatePosition(part.FindModelTransform(CameraTransformName));
+                if (part.FindModelTransform(CameraTransformName) == null)
+                {
+                    Debug.Log("CactEye 2: Unable to find camera transform");
+                }
+                else
+                {
+                    TelescopeControlMenu.UpdatePosition(part.FindModelTransform(CameraTransformName));
+
+                }
             }
 
         }
@@ -285,7 +290,9 @@ namespace CactEye2
         public void OnGUI()
         {
             if (TelescopeControlMenu.IsGUIVisible)
+            {
                 TelescopeControlMenu.DrawGUI();
+            }
         }
 
         /* ************************************************************************************************
