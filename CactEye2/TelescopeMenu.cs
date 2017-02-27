@@ -213,7 +213,7 @@ namespace CactEye2
                 }
             }
 
-            if ((ValidTarget()) && ActiveProcessor && isScopeOpen)
+            if (ValidTarget() && ActiveProcessor && isScopeOpen)
             {
                 GUI.skin.GetStyle("Label").alignment = TextAnchor.MiddleRight;
                 GUI.Label(new Rect(425f, 188f, 150, 32), "Store Image:");
@@ -343,14 +343,10 @@ namespace CactEye2
                     FieldOfView = GUILayout.HorizontalSlider(FieldOfView, 0f, 1f);
                     sAdjustment = Math.Log(1d / (32d / ActiveProcessor.GetMinimumFOV()));
                     CameraModule.FieldOfView = 32f * (float)Math.Exp(sAdjustment * FieldOfView);
-
-
-                    //Log spam
-                    //Debug.Log("CactEye 2: MinimumFOV = " + ActiveProcessor.GetMinimumFOV().ToString());
                 }
                 else
                 {
-                    FieldOfView = 32;
+                    CameraModule.FieldOfView = 16;
                 }
 
             }
