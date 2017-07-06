@@ -95,7 +95,7 @@ namespace CactEye2
             else
             {
                 float SciencePoints = 0f;
-                ExperimentID = "CactEyeAsteroid";
+                string TargetName = TargetVessel.name;
                 ScienceExperiment AsteroidExperiment = ResearchAndDevelopment.GetExperiment(ExperimentID);
                 ScienceSubject AsteroidSubject = ResearchAndDevelopment.GetExperimentSubject(AsteroidExperiment, ExperimentSituations.InSpaceHigh, FlightGlobals.ActiveVessel.mainBody, "");
 
@@ -113,7 +113,7 @@ namespace CactEye2
                 //Different scopes have different multipliers for the science gains.
                 SciencePoints *= scienceMultiplier;
 
-                ScienceData Data = new ScienceData(SciencePoints, 1f, 0f, AsteroidSubject.id, Type + " " + FlightGlobals.activeTarget.name + " Observation");
+                ScienceData Data = new ScienceData(SciencePoints, 1f, 0f, AsteroidSubject.id, Type + " " + TargetName + " Observation");
                 StoredData.Add(Data);
                 ReviewData(Data, Screenshot);
                 return "";
