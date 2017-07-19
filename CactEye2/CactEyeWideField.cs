@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using UnityEngine;
 
@@ -101,7 +100,7 @@ namespace CactEye2
                 try
                 {
                     WideFieldExperiment = ResearchAndDevelopment.GetExperiment(ExperimentID);
-                    WideFieldSubject = ResearchAndDevelopment.GetExperimentSubject(WideFieldExperiment, ExperimentSituations.InSpaceHigh, Target, "VisualObservation" + Target.name);
+                    WideFieldSubject = ResearchAndDevelopment.GetExperimentSubject(WideFieldExperiment, ExperimentSituations.InSpaceHigh, Target, "VisualObservation" + Target.name, "");
                     WideFieldSubject.title = "CactEye Visual Planetary Observation of " + Target.name;
                     SciencePoints = WideFieldExperiment.baseValue * WideFieldExperiment.dataScale * maxScience * scienceMultiplier;
                     if (CactEyeConfig.DebugMode)

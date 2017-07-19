@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using UnityEngine;
 
@@ -97,7 +96,7 @@ namespace CactEye2
                 float SciencePoints = 0f;
                 ExperimentID = "CactEyeAsteroid";
                 ScienceExperiment AsteroidExperiment = ResearchAndDevelopment.GetExperiment(ExperimentID);
-                ScienceSubject AsteroidSubject = ResearchAndDevelopment.GetExperimentSubject(AsteroidExperiment, ExperimentSituations.InSpaceHigh, FlightGlobals.ActiveVessel.mainBody, "");
+                ScienceSubject AsteroidSubject = ResearchAndDevelopment.GetExperimentSubject(AsteroidExperiment, ExperimentSituations.InSpaceHigh, FlightGlobals.ActiveVessel.mainBody, "", "");
 
                 SciencePoints += AsteroidExperiment.baseValue * AsteroidExperiment.dataScale * maxScience;
 

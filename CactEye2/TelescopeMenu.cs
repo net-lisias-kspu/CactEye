@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using UnityEngine;
 using KSP.UI.Dialogs;
@@ -191,7 +190,7 @@ namespace CactEye2
             
             ControlRect = GUILayoutUtility.GetRect(300f, 20f);
             
-            if (Processors.Count<CactEyeProcessor>() > 1)
+            if (Processors.Count > 1)
             {
                 //Previous button
                 if (GUI.Button(new Rect(433f, 72f, 32, 32), Back9Icon))
@@ -487,7 +486,7 @@ namespace CactEye2
 
             //Got an off-by-one error in the list somewhere
             //Previous/Next buttons
-            if (Processors.Count<CactEyeProcessor>() > 1)
+            if (Processors.Count > 1)
             {
                 //Previous button
                 if (GUI.Button(new Rect(ScopeRect.xMin + ((0.5f * ScopeRect.width) - 72), ScopeRect.yMin + (ScopeRect.height - 48f), 32, 32), Back9Icon))
@@ -534,14 +533,22 @@ namespace CactEye2
                 }
             }
 
-            Debug.Log("CactEye 2: Found " + ReactionWheels.Count().ToString() + " Gyro units.");
+            Debug.Log("CactEye 2: Found " + ReactionWheels.Count.ToString() + " Gyro units.");
 
-            if (ReactionWheels.Count<CactEyeGyro>() > 0)
-            {
+            if (ReactionWheels.Count > 0)
+            { 
                 GyroEnabled = true;
-                ReactionWheelPitchTorques = ReactionWheels.Select(CactEyeGyro => CactEyeGyro.PitchTorque).ToList();
-                ReactionWheelYawTorques = ReactionWheels.Select(CactEyeGyro => CactEyeGyro.YawTorque).ToList();
-                ReactionWheelRollTorques = ReactionWheels.Select(CactEyeGyro => CactEyeGyro.RollTorque).ToList();
+                ReactionWheelPitchTorques = new List<float>();
+                ReactionWheelRollTorques = new List<float>();
+                ReactionWheelYawTorques = new List<float>();
+
+                for (int i = 0; i < ReactionWheels.Count; i++)
+                {
+                    ReactionWheelPitchTorques.Add(ReactionWheels[i].PitchTorque);
+                    ReactionWheelRollTorques.Add(ReactionWheels[i].RollTorque);
+                    ReactionWheelYawTorques.Add(ReactionWheels[i].YawTorque);
+                }
+                
             }
             else
             {
@@ -572,11 +579,11 @@ namespace CactEye2
                 }
             }
 
-            Debug.Log("CactEye 2: Found " + Processors.Count().ToString() + " Processors.");
+            Debug.Log("CactEye 2: Found " + Processors.Count.ToString() + " Processors.");
 
-            if (Processors.Count<CactEyeProcessor>() > 0)
+            if (Processors.Count > 0)
             {
-                ActiveProcessor = Processors.First<CactEyeProcessor>();
+                ActiveProcessor = Processors[0];
                 CurrentProcessorIndex = 0;
 
                 //if (ActiveProcessor.GetProcessorType().Contains("Wide Field"))
@@ -596,7 +603,7 @@ namespace CactEye2
         private void SetTorgue()
         {
 
-            for (int i = 0; i < ReactionWheels.Count(); i++)
+            for (int i = 0; i < ReactionWheels.Count; i++)
             {
                 ReactionWheels[i].GyroSensitivity = GyroSensitivity;
             }
@@ -631,7 +638,7 @@ namespace CactEye2
                 Debug.Log("CactEye 2: Exception 6: Was not able to find the next processor, even though there is one.");
                 Debug.Log(e.ToString());
 
-                return Processors.FirstOrDefault();
+                return Processors[0];
             }
         }
 
@@ -659,7 +666,7 @@ namespace CactEye2
                 Debug.Log("CactEye 2: Exception #: Was not able to find the next processor, even though there is one.");
                 Debug.Log(e.ToString());
 
-                return Processors.FirstOrDefault();
+                return Processors[0];
             }
         }
 

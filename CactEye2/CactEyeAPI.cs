@@ -13,7 +13,6 @@
 ********************************************************************/
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using UnityEngine;
 
@@ -153,7 +152,12 @@ namespace CactEye2
                 }
             }
 
-            CelestialBody[] bodyCheck = occultationExpTimes.Keys.ToArray();
+            CelestialBody[] bodyCheck = new CelestialBody[occultationExpTimes.Keys.Count];
+            int counter = 0;
+            foreach (KeyValuePair<CelestialBody, double> pair in occultationExpTimes)
+            {
+                bodyCheck[counter++] = pair.Key;
+            }
             foreach (CelestialBody body in bodyCheck)
             {
                 if (Planetarium.GetUniversalTime() > occultationExpTimes[body])

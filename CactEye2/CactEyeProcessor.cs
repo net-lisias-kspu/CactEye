@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using UnityEngine;
 using KSP.UI.Dialogs;
@@ -316,9 +315,9 @@ namespace CactEye2
             //Grab list of available antenneas
             List<IScienceDataTransmitter> AvailableTransmitters = vessel.FindPartModulesImplementing<IScienceDataTransmitter>();
 
-            if (AvailableTransmitters.Count() > 0)
+            if (AvailableTransmitters.Count > 0)
             {
-                AvailableTransmitters.First().TransmitData(new List<ScienceData>{ Data });
+                AvailableTransmitters[0].TransmitData(new List<ScienceData>{ Data });
             }
 
             ResetExperimentGUI();

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using UnityEngine;
 using KSP.IO;
@@ -65,8 +64,29 @@ namespace CactEye2
             {
                 CameraSetup(camName);
             }
-            
-            skyboxRenderers = (from Renderer r in (FindObjectsOfType(typeof(Renderer)) as IEnumerable<Renderer>) where (r.name == "XP" || r.name == "XN" || r.name == "YP" || r.name == "YN" || r.name == "ZP" || r.name == "ZN") select r).ToArray<Renderer>();
+            Renderer[] allRenderers = FindObjectsOfType<Renderer>();
+            List<Renderer> sbRenderers = new List<Renderer>();
+            for(int i = 0; i < allRenderers.Length; i++)
+            {
+                switch(allRenderers[i].name)
+                {
+                    case "XP":
+                    case "XN":
+                    case "YP":
+                    case "YN":
+                    case "ZP":
+                    case "ZN":
+                        sbRenderers.Add(allRenderers[i]);
+                        break;
+
+                    default:
+                        break;
+                }
+            }
+            skyboxRenderers = sbRenderers.ToArray();
+
+            //skyboxRenderers = (from Renderer r in (FindObjectsOfType(typeof(Renderer))) where (r.name == "XP" || r.name == "XN" || r.name == "YP" || r.name == "YN" || r.name == "ZP" || r.name == "ZN") select r).ToArray<Renderer>();
+
             if (skyboxRenderers == null)
             {
                 Debug.Log("CactEye 2: Logical Error: skyboxRenderers is null!");
