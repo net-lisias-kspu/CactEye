@@ -84,7 +84,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>xcopy /Y "$(TargetPath)" "$(SolutionDir)CactEyeOptics\GameData\CactEye\Plugins\"
-
+xcopy /y "$(TargetPath)" "G:\Development\Kerbal Space Program\GameData\CactEye\Plugins"
 </PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
