@@ -106,6 +106,7 @@ namespace CactEye2
                 base.PitchTorque = OriginalPitchTorgue * (gyroScale + ((1 - gyroScale) * GyroSensitivity));
                 base.YawTorque = OriginalYawTorgue * (gyroScale + ((1 - gyroScale) * GyroSensitivity));
                 base.RollTorque = OriginalRollTorgue * (gyroScale + ((1 - gyroScale) * GyroSensitivity));
+                
             }
         }
 

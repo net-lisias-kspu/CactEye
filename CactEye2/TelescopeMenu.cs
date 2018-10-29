@@ -275,7 +275,9 @@ namespace CactEye2
                 //    ScreenMessages.PostScreenMessage("Image processor is out of power. Please restore power to telescope.", 6, ScreenMessageStyle.UPPER_CENTER);
                     ActiveProcessor = null;
                     Notification = "Image Processor is out of power. Please restore power to telescope";
+                    ScreenMessages.PostScreenMessage(Notification, 3f, ScreenMessageStyle.UPPER_CENTER);
                     timer = 0f;
+                    Toggle();
                 }
 
                 //Zoom Feedback Label.
