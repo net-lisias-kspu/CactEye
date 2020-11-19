@@ -4,12 +4,18 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 using KSP.UI.Screens;
+using ToolbarControl_NS;
+using ClickThroughFix;
+
+using KSP_Log;
 
 namespace CactEye2
 {
     [KSPAddon(KSPAddon.Startup.SpaceCentre, false)]
     class CactEyeConfigMenu: MonoBehaviour
     {
+        internal static Log Log;
+
         //Position and size of the window
         private Rect WindowPosition;
 
@@ -20,16 +26,20 @@ namespace CactEye2
         //Flag that detects if the GUI is enabled or not.
         private bool IsGUIVisible = false;
 
-        private static ApplicationLauncherButton appLauncherButton = null;
-        private Texture2D Icon = null;
+        //private static ApplicationLauncherButton appLauncherButton = null;
+        //private Texture2D Icon = null;
 
         private bool DebugMode = false;
         private bool SunDamage = false;
         private bool GyroDecay = false;
         private bool AsteroidSpawner = false;
 
+        internal const string MODID = "CactiEye_ns";
+        internal const string MODNAME = "CactEye Optics";
+
         //Set once application launcher button has been installed
-        private bool AppLauncher = false;
+        //private bool AppLauncher = false;
+        ToolbarControl toolbarControl;
 
         /* ************************************************************************************************
          * Function Name: CactEyeConfigMenu
@@ -38,8 +48,10 @@ namespace CactEye2
          * Purpose: Default constructor for the configuration menu. This will set several different 
          * initial values for the config menu GUI.
          * ************************************************************************************************/
-        public CactEyeConfigMenu()
+        void CactEyeConfigMenuInit()
         {
+            if (Log == null)
+                Log = new Log("CactEyeOptics", Log.LEVEL.INFO);
 
             //unique id for the gui window.
             this.WindowTitle = "CactEye 2 Configuration Menu";
@@ -62,32 +74,10 @@ namespace CactEye2
          * ************************************************************************************************/
         public void Awake() 
         {
-/*            if (ApplicationLauncher.Ready)
-            {
-                appLauncherButton = InitializeApplicationButton();
-
-                if (appLauncherButton != null)
-                {
-                    appLauncherButton.VisibleInScenes = ApplicationLauncher.AppScenes.SPACECENTER;
-
-                    if (CactEyeConfig.DebugMode)
-                    {
-                        Debug.Log("CactEye 2: Debug: Application Launcher Button created!");
-                    }
-                }
-            }
- */
-            GameEvents.onGUIApplicationLauncherReady.Add(OnGuiApplicationLauncherReady);
+            CactEyeConfigMenuInit();
+            InitToolbarButton();
         }
 
-        private void OnGuiApplicationLauncherReady()
-        {
-            if (!AppLauncher)
-            {
-                appLauncherButton = InitializeApplicationButton();
-                AppLauncher = true;
-            }
-        }
 
         /* ************************************************************************************************
          * Function Name: OnDestroy
@@ -100,14 +90,15 @@ namespace CactEye2
          * ************************************************************************************************/
         public void OnDestroy()
         {
-            if (appLauncherButton != null)
+            if (toolbarControl != null)
             {
-                ApplicationLauncher.Instance.RemoveModApplication(appLauncherButton);
-                appLauncherButton = null;
+
+                toolbarControl.OnDestroy();
+                Destroy(toolbarControl);
 
                 if (CactEyeConfig.DebugMode)
                 {
-                    Debug.Log("CactEye 2: Debug: Application Launcher Button destroyed!");
+                    Debug.Log("CactEye 2: Debug: ToolbarControl Button destroyed!");
                 }
             }
         }
@@ -119,36 +110,24 @@ namespace CactEye2
          * Purpose: This function will initialize the application launcher button for CactEye, and specify
          * which functions to call when a user clicks the button.
          * ************************************************************************************************/
-        ApplicationLauncherButton InitializeApplicationButton()
+        void InitToolbarButton()
         {
-            ApplicationLauncherButton Button = null;
-            Icon = GameDatabase.Instance.GetTexture("CactEye/Icons/CactEyeOptics_scaled", false);
-
-            if (Icon == null)
+            if (toolbarControl == null)
             {
-                Debug.Log("CactEye 2: Logical Error: Was not able to load application launcher icon");
-            }
-
-            else
-            {
-                Button = ApplicationLauncher.Instance.AddModApplication(
-                    OnAppLauncherTrue,
-                    OnAppLauncherFalse,
-                    null,
-                    null,
-                    null,
-                    null,
+                toolbarControl = gameObject.AddComponent<ToolbarControl>();
+                toolbarControl.AddToAllToolbars(OnButtonTrue,
+                    OnButtonFalse,
                     ApplicationLauncher.AppScenes.SPACECENTER,
-                    Icon);
-
-                if (Button == null)
-                {
-                    Debug.Log("CactEye 2: Logical Error: Was not able to add the application launcher button!");
-                }
+                    MODID,
+                    "cacteyeButton",
+                    "CactEye/PluginData/Icons/CactEyeOptics-38",
+                    "CactEye/PluginData/Icons/CactEyeOptics_disabled-38",
+                    "CactEye/PluginData/Icons/toolbar-24",
+                    "CactEye/PluginData/Icons/toolbar_disabled-24",
+                    MODNAME
+                );
             }
 
-
-            return Button;
         }
 
         /* ************************************************************************************************
@@ -158,13 +137,13 @@ namespace CactEye2
          * Purpose: This function is called when a user clicks the application launcher button and the 
          * configuration menu is not being displayed. Essentially it brings up the configuration menu.
          * ************************************************************************************************/
-        void OnAppLauncherTrue()
+        void OnButtonTrue()
         {
             Toggle();
 
             if (CactEyeConfig.DebugMode)
             {
-                Debug.Log("CactEye 2: Debug: OnAppLauncherTrue() fired!");
+                Log.Info(" Debug: OnButtonTrue() fired!");
             }
 
         }
@@ -176,13 +155,13 @@ namespace CactEye2
          * Purpose: This function is called when a user clicks the application launcher button and the 
          * configuration menu is not being displayed. Essentially it hides the configuration menu.
          * ************************************************************************************************/
-        void OnAppLauncherFalse()
+        void OnButtonFalse()
         {
             Toggle();
 
             if (CactEyeConfig.DebugMode)
             {
-                Debug.Log("CactEye 2: Debug: OnAppLauncherFalse() fired!");
+                Log.Info(" Debug: OnButtonFalse() fired!");
             }
         }
 
@@ -201,12 +180,14 @@ namespace CactEye2
 
                 CactEyeConfig.ReadSettings();
                 DebugMode = CactEyeConfig.DebugMode;
+                Log.SetLevel(DebugMode? Log.LEVEL.INFO:Log.LEVEL.ERROR);
+                
                 SunDamage = CactEyeConfig.SunDamage;
                 GyroDecay = CactEyeConfig.GyroDecay;
                 AsteroidSpawner = CactEyeConfig.AsteroidSpawner;
                 if (CactEyeConfig.DebugMode)
                 {
-                    Debug.Log("CactEye 2: Debug: CactEyeConfigMenu enabled!");
+                    Log.Info(" Debug: CactEyeConfigMenu enabled!");
                 }
             }
 
@@ -214,6 +195,7 @@ namespace CactEye2
             {
 
                 CactEyeConfig.DebugMode = DebugMode;
+                Log.SetLevel(DebugMode ? Log.LEVEL.INFO : Log.LEVEL.ERROR);
                 CactEyeConfig.SunDamage = SunDamage;
                 CactEyeConfig.GyroDecay = GyroDecay;
                 CactEyeConfig.AsteroidSpawner = AsteroidSpawner;
@@ -221,7 +203,7 @@ namespace CactEye2
 
                 if (CactEyeConfig.DebugMode)
                 {
-                    Debug.Log("CactEye 2: Debug: CactEyeConfigMenu disabled!");
+                    Log.Info(" Debug: CactEyeConfigMenu disabled!");
                 }
             }
 
@@ -240,7 +222,7 @@ namespace CactEye2
 
             if (CactEyeConfig.DebugMode)
             {
-                Debug.Log("CactEye 2: Debug: CactEyeConfigMenu.MainGUI called!");
+                Log.Info(" Debug: CactEyeConfigMenu.MainGUI called!");
             }
 
             //Top right hand corner button that exits the window.
@@ -253,6 +235,7 @@ namespace CactEye2
 
             GUILayout.BeginHorizontal();
             DebugMode = GUILayout.Toggle(DebugMode, "Enable Debug Mode.");
+            Log.SetLevel(DebugMode ? Log.LEVEL.INFO : Log.LEVEL.ERROR);
             GUILayout.EndHorizontal();
 
             GUILayout.BeginHorizontal();
@@ -291,10 +274,10 @@ namespace CactEye2
 
             if (CactEyeConfig.DebugMode)
             {
-                Debug.Log("CactEye 2: Debug: Callback to DrawGUI occurred!");
+                Log.Info(" Debug: Callback to DrawGUI occurred!");
             }
 
-            WindowPosition = GUILayout.Window(WindowId, WindowPosition, MainGUI, WindowTitle);
+            WindowPosition = ClickThruBlocker.GUILayoutWindow(WindowId, WindowPosition, MainGUI, WindowTitle);
         }
     }
 }

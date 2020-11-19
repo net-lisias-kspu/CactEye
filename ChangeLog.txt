@@ -1,0 +1,37 @@
+ChangeLog
+
+1.5.2.0 (unreleased)
+	Replaced stock toolbar with ToolbarController
+	Added support for the ClickThroughBlocker
+	Added impactTolerance to the following parts:
+		probeCoreSlim
+		tele_gru1
+		tele_gru2
+		tele_ladder
+		tele_solarpanels
+		processorAsteroid1
+		processorAsteroid2
+		processorAsteroid3
+		processorPlanetary1
+		processorPlanetary2
+		processorPlanetary3
+	Added tags to the following parts:
+		probeCoreSlim
+
+	Added bulkheadProfiles to the following parts:
+		probeCoreSlim
+
+	Replaced GetTexture calls with ToolbarControl.LoadImageFromFile()
+	Moved images (except for the flags) into PluginData/Icons
+
+	Fixed CactEyeAsteroidSpawner to check if vessel loaded or not, and use appropriate interface to get Active value
+	Added code to the DistantObjectEnhancement wrapper (DOEWrapper) to check to see if DOE is installed, if not then to exit the wrapper.
+	Renamed part files to match the name of the part
+	Fixed Nullref when closing gui
+	Added code to update number of processors whenever a processor is enabled or disabled
+	Added code to disable processor when apeture is closed
+	Added code to stop timewarp (once every 30 seconds) if telescope gets too close to the sun
+	Replaced all Debug.Log with Log.Info & Log.Error
+	Added patch to incorporate SCANsat functionality similar to the stock scanner
+	Added patch to incorporate SpaceDust scanning (for the SpaceDust mod)
+	Added code to work with the SpaceDust dll, if installed

@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using UnityEngine;
-using KSP.IO;
+using static CactEye2.CactEyeConfigMenu;
 
 namespace CactEye2
 {
@@ -89,13 +88,13 @@ namespace CactEye2
 
             if (skyboxRenderers == null)
             {
-                Debug.Log("CactEye 2: Logical Error: skyboxRenderers is null!");
+                Log.Error("Logical Error: skyboxRenderers is null!");
             }
 
             scaledSpaceFaders = FindObjectsOfType(typeof(ScaledSpaceFader)) as ScaledSpaceFader[];
             if (scaledSpaceFaders == null)
             {
-                Debug.Log("CactEye 2: Logical Error: scaledSpaceFaders is null!");
+                Log.Error("Logical Error: scaledSpaceFaders is null!");
             }
 
             
@@ -134,7 +133,7 @@ namespace CactEye2
                 }
                 else
                 {
-                    Debug.Log("CactEye 2: " + Cam.name.ToString() + " was not found!");
+                    Log.Error("" + Cam.name.ToString() + " was not found!");
                 }
             }
             foreach (Camera Cam in CameraObject)
@@ -216,13 +215,13 @@ namespace CactEye2
 
             if (CameraObject == null)
             {
-                Debug.Log("CactEye 2: Logical Error 2: The Camera Object is null. The mod author needs to perform a code review.");
+                Log.Error("Logical Error 2: The Camera Object is null. The mod author needs to perform a code review.");
             }
             else if (GetCameraByName(SourceName) == null)
             {
                 if(CactEyeConfig.DebugMode)
                 {
-                    Debug.Log("CactEye 2: Camera Not Found: " + SourceName);
+                    Log.Info(" Camera Not Found: " + SourceName);
                 }
                 return;
             }
@@ -232,13 +231,13 @@ namespace CactEye2
                 GameObject CameraBody = new GameObject("CactEye " + SourceName);
                 if (CameraBody == null)
                 {
-                    Debug.Log("CactEye 2: logical Error: CameraBody was null!");
+                    Log.Error("logical Error: CameraBody was null!");
                 }
                 CameraBody.name = "CactEye 2 " + SourceName;
                 newCam = CameraBody.AddComponent<Camera>();
                 if (newCam == null)
                 {
-                    Debug.Log("CactEye 2: Logical Error 1: CameraBody.AddComponent returned null! If you do not have Visual Enhancements installed, then this error can be safely ignored.");
+                    Log.Error("Logical Error 1: CameraBody.AddComponent returned null! If you do not have Visual Enhancements installed, then this error can be safely ignored.");
                 }
                 newCam.CopyFrom(GetCameraByName(SourceName));
                 newCam.enabled = true;
@@ -254,7 +253,7 @@ namespace CactEye2
                 }
                 if(CactEyeConfig.DebugMode)
                 {
-                    Debug.Log("CactEye 2: Adding Camera " + newCam.name);
+                    Log.Info(" Adding Camera " + newCam.name);
                 }
                 CameraObject.Add(newCam);
                 //Debug.Log("CactEye 2: Debug: Camera[" + Index.ToString() + "]: " + CameraObject[Index].cullingMask.ToString());

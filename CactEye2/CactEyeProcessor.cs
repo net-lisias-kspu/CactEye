@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
-using KSP.UI.Dialogs;
-using KSP.UI.Screens;
 using KSP.UI.Screens.Flight.Dialogs;
+using static CactEye2.CactEyeConfigMenu;
 
 namespace CactEye2
 {
@@ -20,7 +18,7 @@ namespace CactEye2
         public float maxScience = 0.25f;
 
         [KSPField(isPersistant = false)]
-        public float consumeRate = 2f;
+        public double consumeRate = 2f;
 
         [KSPField(isPersistant = false)]
         public string ExperimentID = "Default Experiment";
@@ -182,9 +180,10 @@ namespace CactEye2
             //CorrectLightDirection();
             if (CactEyeConfig.DebugMode)
             {
-                Debug.Log("CactEye 2: Debug: RB init returned " + rbInit.ToString());
-                Debug.Log("CactEye 2: Processor activated! " + Active.ToString());
+                Log.Info(" Debug: RB init returned " + rbInit.ToString());
+                Log.Info(" Processor activated! " + Active.ToString());
             }
+            CactEyeAsteroidSpawner.instance.UpdateSpawnRate();         
         }
 
         /* ************************************************************************************************
@@ -199,8 +198,9 @@ namespace CactEye2
             //RevertLightDirection();
             if (CactEyeConfig.DebugMode)
             {
-                Debug.Log("CactEye 2: Processor deactivated!");
+                Log.Info(" Processor deactivated!");
             }
+            CactEyeAsteroidSpawner.instance.UpdateSpawnRate();
         }
 
         /* ************************************************************************************************
@@ -246,15 +246,15 @@ namespace CactEye2
 
             if (CactEyeConfig.DebugMode)
             {
-                Debug.Log("CactEye 2: SunReference: " + SunReference.type.ToString());
+                Log.Info(" SunReference: " + SunReference.type.ToString());
             }
 
             Sun.Instance.sunDirection = FlightGlobals.fetch.VesselTarget.GetTransform().position - FlightGlobals.Bodies[0].position;
 
             if (CactEyeConfig.DebugMode)
             {
-                Debug.Log("CactEye 2: OriginalSunDirection: " + OriginalSunDirection.ToString());
-                Debug.Log("CactEye 2: sunDirection: " + Sun.Instance.sunDirection.ToString());
+                Log.Info(" OriginalSunDirection: " + OriginalSunDirection.ToString());
+                Log.Info(" sunDirection: " + Sun.Instance.sunDirection.ToString());
             }
 
             //}
@@ -414,14 +414,14 @@ namespace CactEye2
             if (SkinStored != null)
             {
                 SkinStored.box.normal = StyleDefault;
-                SkinStored.box.normal.background = GameDatabase.Instance.GetTexture("CactEye/Icons/ExperimentGUIBackground", false);
+                SkinStored.box.normal.background = GameDatabase.Instance.GetTexture("CactEye/PluginData/Icons/ExperimentGUIBackground", false);
                 SkinStored.box.fixedWidth = 0f;
                 SkinStored.box.fixedHeight = 0f;
                 SkinStored.window.fixedWidth = 400f;
             }
             else
             {
-                Debug.Log("CactEye 2: Logical Error 3: SkinStored is null!");
+                Log.Error("Logical Error 3: SkinStored is null!");
             }
 
             ScienceStyle.fixedHeight = 0f;

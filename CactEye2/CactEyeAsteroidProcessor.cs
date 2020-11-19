@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using UnityEngine;
+﻿using UnityEngine;
+using static CactEye2.CactEyeConfigMenu;
 
 namespace CactEye2
 {
@@ -57,9 +55,10 @@ namespace CactEye2
 
                 if (CactEyeConfig.DebugMode)
                 {
-                    Debug.Log("CactEye 2: Processor deactivated!");
+                    Log.Info(" Processor deactivated!");
                 }
             }
+            CactEyeAsteroidSpawner.instance.UpdateSpawnRate();
 
             //RevertLightDirection();
         }
@@ -106,7 +105,7 @@ namespace CactEye2
 
                 if (CactEyeConfig.DebugMode)
                 {
-                    Debug.Log("CactEye 2: SciencePoints: " + SciencePoints.ToString());
+                    Log.Info(" SciencePoints: " + SciencePoints.ToString());
                 }
 
                 //Different scopes have different multipliers for the science gains.

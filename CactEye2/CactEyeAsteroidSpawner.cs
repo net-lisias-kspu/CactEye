@@ -1,7 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using UnityEngine;
+using static CactEye2.CactEyeConfigMenu;
+using SpaceTuxUtility;
+
 
 namespace CactEye2
 {
@@ -40,9 +41,9 @@ namespace CactEye2
     {
     }
 
-    internal class CactEyeAsteroidSpawner: MonoBehaviour
+    internal class CactEyeAsteroidSpawner : MonoBehaviour
     {
-
+        internal static CactEyeAsteroidSpawner instance;
 
         private int GlobalDiscoveryRate;
 
@@ -55,14 +56,11 @@ namespace CactEye2
          * ************************************************************************************************/
         public void Start()
         {
+            instance = this;
+            Log.Info("CactEyeAsteroidSpawner.Start, CactEyeConfig.AsteroidSpawner: " + CactEyeConfig.AsteroidSpawner);
             if (CactEyeConfig.AsteroidSpawner)
             {
-                if (HighLogic.LoadedScene == GameScenes.FLIGHT ||
-                    HighLogic.LoadedScene == GameScenes.SPACECENTER ||
-                    HighLogic.LoadedScene == GameScenes.TRACKSTATION)
-                {
-                    StartCoroutine(DelayedStart());
-                }
+                StartCoroutine(DelayedStart());
             }
         }
 
@@ -77,11 +75,10 @@ namespace CactEye2
         {
             while (HighLogic.CurrentGame.scenarios[0].moduleRef == null)
             {
-                yield return 0;
+                yield return new WaitForSecondsRealtime(0.1f);
             }
 
-            CalculateGlobalDiscoveryRate();
-            AdjustSpawnRate();
+            UpdateSpawnRate();
         }
 
         /* ************************************************************************************************
@@ -100,30 +97,54 @@ namespace CactEye2
             foreach (Vessel vessel in FlightGlobals.Vessels)
             {
 
-
-                foreach (ProtoPartSnapshot part in vessel.protoVessel.protoPartSnapshots)
+                if (vessel.loaded)
                 {
-                    ProtoPartModuleSnapshot cpu = part.modules.Find(n => n.moduleName == "CactEyeAsteroidProcessor");
-
-                    if (cpu != null && bool.Parse(cpu.moduleValues.GetValue("Active")))
+                    Log.Info("Vessel loaded: " + vessel.name);
+                    foreach (var p in vessel.Parts)
                     {
-                        int PartDiscoveryRate = 0;
-                        try
+                        foreach (var m in p.Modules)
                         {
-                            PartDiscoveryRate = int.Parse(cpu.moduleValues.GetValue("DiscoveryRate"));
+                            if (m.moduleName == "CactEyeAsteroidProcessor")
+                            {
+                                CactEyeAsteroidProcessor ceap = m as CactEyeAsteroidProcessor;
+                                if (ceap.Active)
+                                {
+                                    GlobalDiscoveryRate -= ceap.DiscoveryRate;
+                                    Log.Info("ceap.Active is true, DiscoveryRate: " + ceap.DiscoveryRate);
+                                }
+                                break;
+                            }
                         }
-                        catch (Exception e)
-                        {
-                            Debug.Log("CactEye 2: Asteroid Spawner: Was not able to retrieve a discovery rate from an active telescope");
-                        }
-                        //int.TryParse(cpu.moduleValues.GetValue("DiscoveryRate"), out PartDiscoveryRate);
+                    }
 
-                        GlobalDiscoveryRate -= PartDiscoveryRate;
-
-                        if (CactEyeConfig.DebugMode)
+                }
+                else
+                {
+                    Log.Info("Vessel not loaded: " + vessel.name);
+                    foreach (ProtoPartSnapshot part in vessel.protoVessel.protoPartSnapshots)
+                    {
+                        ProtoPartModuleSnapshot cpu = part.modules.Find(n => n.moduleName == "CactEyeAsteroidProcessor");
+                        if (cpu != null && bool.Parse(cpu.moduleValues.GetValue("Active")))
                         {
-                            Debug.Log("CactEye 2: Asteroid Spawner: Asteroid Processor Found!");
-                            Debug.Log("CactEye 2: Asteroid Spawner: Discovery rate: " + PartDiscoveryRate.ToString());
+                            int PartDiscoveryRate = 0;
+                            try
+                            {
+                                PartDiscoveryRate = int.Parse(cpu.moduleValues.GetValue("DiscoveryRate"));
+                            }
+                            catch (Exception e)
+                            {
+                                Log.Error("Asteroid Spawner: Was not able to retrieve a discovery rate from an active telescope");
+                            }
+                            //int.TryParse(cpu.moduleValues.GetValue("DiscoveryRate"), out PartDiscoveryRate);
+                            Log.Info("ceap.Active is true, PartDiscoveryRate: " + PartDiscoveryRate);
+
+                            GlobalDiscoveryRate -= PartDiscoveryRate;
+
+                            if (CactEyeConfig.DebugMode)
+                            {
+                                Log.Error("Asteroid Spawner: Asteroid Processor Found!");
+                                Log.Error("Asteroid Spawner: Discovery rate: " + PartDiscoveryRate.ToString());
+                            }
                         }
                     }
                 }
@@ -137,6 +158,8 @@ namespace CactEye2
                 //        Debug.Log("CactEye 2: Asteroid Spawner: Asteroid Processor Found!");
                 //    }
                 //}
+
+                Log.Info("GlobalDescoveryRate: " + GlobalDiscoveryRate);
             }
         }
 
@@ -151,19 +174,8 @@ namespace CactEye2
          * ************************************************************************************************/
         private bool CheckForIncompatibleMods()
         {
-            foreach (AssemblyLoader.LoadedAssembly ASM in AssemblyLoader.loadedAssemblies)
-            {
-                if (ASM.dllName == "CustomAsteroids")
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-
-            return false;
+            Log.Info("CustomAsteroids: " + HasMod.hasMod("CustomAsteroids"));
+            return HasMod.hasMod("CustomAsteroids");
         }
 
         /* ************************************************************************************************
@@ -183,25 +195,26 @@ namespace CactEye2
 
                 try
                 {
-                    ScenarioDiscoverableObjects AsteroidSpawner = (ScenarioDiscoverableObjects)HighLogic.CurrentGame.scenarios.Find(scenario => scenario.moduleRef is ScenarioDiscoverableObjects).moduleRef;
+                    ScenarioDiscoverableObjects AsteroidSpawner = HighLogic.CurrentGame.scenarios.Find(scenario => scenario.moduleRef is ScenarioDiscoverableObjects).moduleRef as ScenarioDiscoverableObjects;
 
+                    Log.Info("AsteroidSpawner.spawnOddsAgainst: " + AsteroidSpawner.spawnOddsAgainst + ", GlobalDiscoveryRate: " + GlobalDiscoveryRate);
                     AsteroidSpawner.spawnOddsAgainst = GlobalDiscoveryRate;
 
                     if (CactEyeConfig.DebugMode)
                     {
-                        Debug.Log("CactEye 2: Asteroid Spawner: spawnOddsAgainst = " + AsteroidSpawner.spawnOddsAgainst.ToString());
+                        Log.Error("Asteroid Spawner: spawnOddsAgainst = " + AsteroidSpawner.spawnOddsAgainst.ToString());
                     }
                 }
                 catch (Exception e)
                 {
-                    Debug.Log("CactEye 2: Asteroid Spawner: Was not able to adjust spawn rate; AsteroidSpawner object is null!");
-                    Debug.Log(e.ToString());
+                    Log.Error("Asteroid Spawner: Was not able to adjust spawn rate; AsteroidSpawner object is null!");
+                    Log.Error(e.ToString());
                 }
             }
 
             else
             {
-                Debug.Log("CactEye 2: An incompatible mod (most likely Custom Asteroids) was detected. CactEye will not adjust the asteroid spawn rate.");
+                Log.Error("An incompatible mod (most likely Custom Asteroids) was detected. CactEye will not adjust the asteroid spawn rate.");
             }
         }
 

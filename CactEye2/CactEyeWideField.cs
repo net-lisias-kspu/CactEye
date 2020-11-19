@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
+using static CactEye2.CactEyeConfigMenu;
 
 namespace CactEye2
 {
@@ -35,7 +36,7 @@ namespace CactEye2
                 //Invalid target type
                 if (CactEyeConfig.DebugMode)
                 {
-                    Debug.Log("CactEye 2: Wide Field Camera: Invalid Target Type.");
+                    Log.Info(" Wide Field Camera: Invalid Target Type.");
                 }
                 return Type + ": Invalid Target Type.";
             }
@@ -44,7 +45,7 @@ namespace CactEye2
                 //Cannot target the sun
                 if (CactEyeConfig.DebugMode)
                 {
-                    Debug.Log("CactEye 2: Wide Field Camera: Cannot target the sun.");
+                    Log.Info(" Wide Field Camera: Cannot target the sun.");
                 }
                 return Type + ": Cannot target the sun.";
             }
@@ -53,7 +54,7 @@ namespace CactEye2
                 //target not in scope
                 if (CactEyeConfig.DebugMode)
                 {
-                    Debug.Log("CactEye 2: Wide Field Camera: Target not in scope.");
+                    Log.Info(" Wide Field Camera: Target not in scope.");
                 }
                 return Type + ": Target not in scope field of view.";
             }
@@ -65,9 +66,9 @@ namespace CactEye2
                 //Scope not zoomed in far enough
                 if (CactEyeConfig.DebugMode)
                 {
-                    Debug.Log("CactEye 2: Wide Field Camera: Scope not zoomed in far enough.");
-                    Debug.Log("CactEye 2: Wide Field Camera: " + FOV.ToString());
-                    Debug.Log("CactEye 2: Wide Field Camera: " + (CactEyeAPI.bodySize[Target] * 50f).ToString());
+                    Log.Info(" Wide Field Camera: Scope not zoomed in far enough.");
+                    Log.Info(" Wide Field Camera: " + FOV.ToString());
+                    Log.Info(" Wide Field Camera: " + (CactEyeAPI.bodySize[Target] * 50f).ToString());
                 }
                 return Type + ": Scope not zoomed in far enough.";
             }
@@ -77,7 +78,7 @@ namespace CactEye2
             {
                 if (CactEyeConfig.DebugMode)
                 {
-                    Debug.Log("CactEye 2: Target is occulted by another body.");
+                    Log.Info(" Target is occulted by another body.");
                 }
                 return Type + ": Target is occulted by another body.";
             }
@@ -105,13 +106,13 @@ namespace CactEye2
                     SciencePoints = WideFieldExperiment.baseValue * WideFieldExperiment.dataScale * maxScience * scienceMultiplier;
                     if (CactEyeConfig.DebugMode)
                     {
-                        Debug.Log("Cacteye 2: SciencePoints: " + SciencePoints);
-                        Debug.Log("Cacteye 2: Current Science: " + WideFieldSubject.science);
-                        Debug.Log("Cacteye 2: Current Cap: " + WideFieldSubject.scienceCap);
-                        Debug.Log("Cacteye 2: ScienceValue: " + WideFieldSubject.scientificValue);
-                        Debug.Log("Cacteye 2: SubjectValue: " + ResearchAndDevelopment.GetSubjectValue(SciencePoints, WideFieldSubject));
-                        Debug.Log("Cacteye 2: RnDScienceValue: " + ResearchAndDevelopment.GetScienceValue(SciencePoints, WideFieldSubject, 1.0f));
-                        Debug.Log("Cacteye 2: RnDReferenceDataValue: " + ResearchAndDevelopment.GetReferenceDataValue(SciencePoints, WideFieldSubject));
+                        Log.Info("Cacteye 2: SciencePoints: " + SciencePoints);
+                        Log.Info("Cacteye 2: Current Science: " + WideFieldSubject.science);
+                        Log.Info("Cacteye 2: Current Cap: " + WideFieldSubject.scienceCap);
+                        Log.Info("Cacteye 2: ScienceValue: " + WideFieldSubject.scientificValue);
+                        Log.Info("Cacteye 2: SubjectValue: " + ResearchAndDevelopment.GetSubjectValue(SciencePoints, WideFieldSubject));
+                        Log.Info("Cacteye 2: RnDScienceValue: " + ResearchAndDevelopment.GetScienceValue(SciencePoints, WideFieldSubject, 1.0f));
+                        Log.Info("Cacteye 2: RnDReferenceDataValue: " + ResearchAndDevelopment.GetReferenceDataValue(SciencePoints, WideFieldSubject));
 
                     }
                     //Modify Science cap and points gathered based on telescope and processor
@@ -121,8 +122,8 @@ namespace CactEye2
                     ScienceAvailableCap = ScienceAdjustedCap - ((SciencePoints / ResearchAndDevelopment.GetScienceValue(SciencePoints, WideFieldSubject, 1.0f)) * WideFieldSubject.science);
                     if (CactEyeConfig.DebugMode)
                     {
-                        Debug.Log("Cacteye 2: Adjusted Cap: " + ScienceAdjustedCap);
-                        Debug.Log("Cacteye 2: Available Cap: " + ScienceAvailableCap);
+                        Log.Info("Cacteye 2: Adjusted Cap: " + ScienceAdjustedCap);
+                        Log.Info("Cacteye 2: Available Cap: " + ScienceAvailableCap);
                     }
                     if (ScienceAvailableCap < 0)
                     {
@@ -136,7 +137,7 @@ namespace CactEye2
 
                     if (CactEyeConfig.DebugMode)
                     {
-                        Debug.Log("CactEye 2: SciencePoints: " + SciencePoints.ToString());
+                        Log.Info(" SciencePoints: " + SciencePoints.ToString());
                     }
 
 
@@ -145,7 +146,7 @@ namespace CactEye2
                     ReviewData(Data, Screenshot);
                     if (RBWrapper.APIRBReady)
                     {
-                        Debug.Log("CactEye 2: Wrapper ready");
+                        Log.Info(" Wrapper ready");
                         
                         RBWrapper.CelestialBodyInfo cbi;
 
@@ -164,15 +165,15 @@ namespace CactEye2
 
                     }
                     else
-                    { 
-                        Debug.Log("CactEye 2: Wrapper not ready");
+                    {
+                        Log.Info(" Wrapper not ready");
                     }
                 }
 
                 catch (Exception e)
                 {
-                    Debug.Log("CactEye 2: Excpetion 5: Was not able to find Experiment with ExperimentID: " + ExperimentID.ToString());
-                    Debug.Log(e.ToString());
+                    Log.Error("Excpetion 5: Was not able to find Experiment with ExperimentID: " + ExperimentID.ToString());
+                    Log.Error(e.ToString());
 
                     return "An error occurred. Please post on the Official CactEye 2 thread on the Kerbal Forums.";
                 }

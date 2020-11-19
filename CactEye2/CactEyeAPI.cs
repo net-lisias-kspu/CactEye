@@ -13,8 +13,9 @@
 ********************************************************************/
 using System;
 using System.Collections.Generic;
-using System.Text;
 using UnityEngine;
+using static CactEye2.CactEyeConfigMenu;
+
 
 namespace CactEye2
 {
@@ -116,7 +117,7 @@ namespace CactEye2
         {
             if (DoOnce)
             {
-                Debug.Log("CactEye 2: sunDirection: " + Sun.Instance.sunDirection.ToString());
+                Log.Info(" sunDirection: " + Sun.Instance.sunDirection.ToString());
                 DoOnce = false;
             }
             

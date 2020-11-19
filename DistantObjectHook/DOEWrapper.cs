@@ -5,6 +5,7 @@ using System.Text;
 using UnityEngine;
 using CactEye2;
 using System.Reflection;
+using SpaceTuxUtility;
 
 namespace DistantObjectHook
 {
@@ -18,8 +19,14 @@ namespace DistantObjectHook
 //        MethodInfo SetExternalFOVControl;
 //        MethodInfo SetFOV;
 
+        
         private void Start()
         {
+            if (!HasMod.hasMod("DistantObject"))
+            {
+                Destroy(this);
+                return;
+            }                    
 
             if (Optics == null)
             {

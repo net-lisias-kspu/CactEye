@@ -19,6 +19,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 using Object = System.Object;
+using static CactEye2.CactEyeConfigMenu;
 
 namespace CactEye2
 {
@@ -573,7 +574,7 @@ namespace CactEye2
             String strMessageLine = String.Format("{0},{2}-{3},{1}",
                 DateTime.Now, Message, Assembly.GetExecutingAssembly().GetName().Name,
                 MethodBase.GetCurrentMethod().DeclaringType.Name);
-            Debug.Log(strMessageLine);
+            Log.Info(strMessageLine);
         }
 
         #endregion Logging Stuff

@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEngine;
+﻿using UnityEngine;
+using static CactEye2.CactEyeConfigMenu;
 
 namespace CactEye2
 {
@@ -76,6 +73,8 @@ namespace CactEye2
                     if (CactEye2.HasValue("DebugMode"))
                     {
                         DebugMode = bool.Parse(CactEye2.GetValue("DebugMode"));
+
+                        Log.SetLevel(DebugMode ? KSP_Log.Log.LEVEL.INFO : KSP_Log.Log.LEVEL.ERROR);
                     }
                     if (CactEye2.HasValue("SunDamage"))
                     {
@@ -92,14 +91,14 @@ namespace CactEye2
                 }
                 else
                 {
-                    Debug.Log("CactEye 2: Logical Error: Error loaded configuration file. Was not able to find CactEye2 node in configuration file.");
+                    Log.Error("Logical Error: Error loaded configuration file. Was not able to find CactEye2 node in configuration file.");
                 }
 
                 //IsLoaded = true;
             }
             else
             {
-                Debug.Log("CactEye 2: Logical Error: Was not able to load the CactEye configuration file.");
+                Log.Error("Logical Error: Was not able to load the CactEye configuration file.");
             }
 
         }
@@ -107,18 +106,18 @@ namespace CactEye2
         public static void ApplySettings()
         {
 
-            Debug.Log("CactEye 2: Settings saved to " + ConfigFilePath);
+            Log.Info(" Settings saved to " + ConfigFilePath);
 
             ConfigNode Settings = new ConfigNode();
             ConfigNode CactEye2 = Settings.AddNode("CactEye2");
             CactEye2.AddValue("DebugMode", DebugMode);
-            Debug.Log("CactEye 2: DebugMode = " + DebugMode.ToString());
+            Log.Info(" DebugMode = " + DebugMode.ToString());
             CactEye2.AddValue("SunDamage", SunDamage);
-            Debug.Log("CactEye 2: SunDamage = " + SunDamage.ToString());
+            Log.Info(" SunDamage = " + SunDamage.ToString());
             CactEye2.AddValue("GyroDecay", GyroDecay);
-            Debug.Log("CactEye 2: GyroDecay = " + GyroDecay.ToString());
+            Log.Info(" GyroDecay = " + GyroDecay.ToString());
             CactEye2.AddValue("AsteroidSpawner", AsteroidSpawner);
-            Debug.Log("Cacteye 2: AsteroidSpawner = " + AsteroidSpawner.ToString());
+            Log.Info("Cacteye 2: AsteroidSpawner = " + AsteroidSpawner.ToString());
             Settings.Save(ConfigFilePath);
         }
     }
