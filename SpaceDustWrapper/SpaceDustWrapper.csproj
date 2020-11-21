@@ -38,7 +38,7 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="SpaceDust">
-      <HintPath>R:\KSP_1.10.1_dev\GameData\SpaceDust\Plugins\SpaceDust.dll</HintPath>
+      <HintPath>$(KSPDIR)\GameData\SpaceDust\Plugins\SpaceDust.dll</HintPath>
     </Reference>
     <Reference Include="SpaceTuxUtility">
       <HintPath>$(KSPDIR)\GameData\SpaceTuxLibrary\Plugins\SpaceTuxUtility.dll</HintPath>
