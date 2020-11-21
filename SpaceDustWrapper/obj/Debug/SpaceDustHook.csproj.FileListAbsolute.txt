@@ -1,6 +1,5 @@
 D:\Users\jbb\github\CactEye-2\SpaceDustWrapper\bin\Debug\SpaceDustWrapper.dll
 D:\Users\jbb\github\CactEye-2\SpaceDustWrapper\bin\Debug\SpaceDustWrapper.pdb
-D:\Users\jbb\github\CactEye-2\SpaceDustWrapper\bin\Debug\SpaceDust.dll
 D:\Users\jbb\github\CactEye-2\SpaceDustWrapper\bin\Debug\SpaceTuxUtility.dll
 D:\Users\jbb\github\CactEye-2\SpaceDustWrapper\obj\Debug\SpaceDustHook.csprojAssemblyReference.cache
 D:\Users\jbb\github\CactEye-2\SpaceDustWrapper\obj\Debug\SpaceDustHook.csproj.CoreCompileInputs.cache

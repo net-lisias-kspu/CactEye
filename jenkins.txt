@@ -28,15 +28,17 @@
 # 0:1.3
 
 # 1:GAMEDIR, VERSIONFILE [, GITHUBREPO ]
-1:KerbalHotSeat, KerbalHotSeat.version
+1:CactEye, CacteyeTelescopes.version
 
 # 2:PROJNAME, PROJFILE, VERSIONFILE, PLUGINSFOLDER
-2:KerbalHotSeat,KerbalHotSeat/KerbalHotSeat.csproj,KerbalHotSeat.version,GameData/KerbalHotSeat/Plugins
+2:CactEye2,CactEye-2/CactEye2/CactEye2.csproj,CacteyeTelescopes.version,CactEyeOptics/GameData/CactEye/Plugins
+2:DistantObjectHook,DistantObjectHook/DistantObjectHook.csproj,CacteyeTelescopes.version,CactEyeOptics/GameData/CactEye/Plugins
+2:SpaceDustWrapper,SpaceDustWrapper/SpaceDustWrapper.csproj,CacteyeTelescopes.version,CactEyeOptics/GameData/CactEye/Plugins
 
 # 3:SOURCEFILE, DESTDIR
-3:KerbalHotSeat.version,GameData/KerbalHotSeat
-#3:LICENSE.md,GameData/KerbalHotSeat
-#3:README.md,GameData/KerbalHotSeat
+3:CacteyeTelescopes.version,CactEyeOptics/GameData/CactEye
+3:LICENSE.md,CactEyeOptics/GameData/CactEye
+3:README.md,CactEyeOptics/GameData/CactEye
 
 # 4:SOURCDIR, DESTDIR
 #4:Textures,GameData/ManeuverQueue/Textures
