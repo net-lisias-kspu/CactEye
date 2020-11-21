@@ -88,9 +88,9 @@
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SpaceDustWrapper\SpaceDustHook.csproj">
+    <ProjectReference Include="..\SpaceDustWrapper\SpaceDustWrapper.csproj">
       <Project>{2db40eb1-0264-4118-9072-1b2508f9cc8f}</Project>
-      <Name>SpaceDustHook</Name>
+      <Name>SpaceDustWrapper</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
