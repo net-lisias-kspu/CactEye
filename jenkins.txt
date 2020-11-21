@@ -31,9 +31,9 @@
 1:CactEyeOptics/GameData/CactEye, CactEyeTelescopes.version
 
 # 2:PROJNAME, PROJFILE, VERSIONFILE, PLUGINSFOLDER
-2:CactEye2,CactEye2/CactEye2.csproj,CactEyeTelescopes.version,CactEyeOptics/GameData/CactEye/Plugins
-2:DistantObjectHook,DistantObjectHook/DistantObjectHook.csproj,CactEyeTelescopes.version,CactEyeOptics/GameData/CactEye/Plugins
 2:SpaceDustWrapper,SpaceDustWrapper/SpaceDustWrapper.csproj,CactEyeTelescopes.version,CactEyeOptics/GameData/CactEye/Plugins
+2:DistantObjectHook,DistantObjectHook/DistantObjectHook.csproj,CactEyeTelescopes.version,CactEyeOptics/GameData/CactEye/Plugins
+2:CactEye2,CactEye2/CactEye2.csproj,CactEyeTelescopes.version,CactEyeOptics/GameData/CactEye/Plugins
 
 # 3:SOURCEFILE, DESTDIR
 3:CacteyeTelescopes.version,CactEyeOptics/GameData/CactEye
