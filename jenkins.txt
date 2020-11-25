@@ -38,7 +38,7 @@
 2:DistantObjectHook,DistantObjectHook/DistantObjectHook.csproj,CactEyeTelescopes.version,GameData/CactEye/Plugins
 
 # 3:SOURCEFILE, DESTDIR
-3:CacteyeTelescopes.version,GameData/CactEye
+3:CactEyeTelescopes.version,GameData/CactEye
 3:LICENSE.md,CactEyeOptics/GameData/CactEye
 3:README.md,CactEyeOptics/GameData/CactEye
 
