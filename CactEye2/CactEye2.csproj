@@ -89,7 +89,7 @@
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SpaceDustWrapper\PartWrapper.csproj">
+    <ProjectReference Include="..\PartWrapper\PartWrapper.csproj">
       <Project>{2db40eb1-0264-4118-9072-1b2508f9cc8f}</Project>
       <Name>PartWrapper</Name>
     </ProjectReference>
