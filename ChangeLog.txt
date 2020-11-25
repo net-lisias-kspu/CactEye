@@ -35,3 +35,14 @@ ChangeLog
 	Added patch to incorporate SCANsat functionality similar to the stock scanner
 	Added patch to incorporate SpaceDust scanning (for the SpaceDust mod)
 	Added code to work with the SpaceDust dll, if installed
+	Added 3 nodes on outside of tele_bay
+	Added camera positioning values, all Vector3: (needed for SpaceDust scope)
+		cameraForward
+		cameraUp
+		cameraPosition
+	Increased duration of "out of power" message from 3 to 5 seconds
+	When using SpaceDust, the telescope will remain open in the VAB.  Will be closed when launched
+	Added a narrow version of the service bay
+	Fixed a nullref when no processors were installed
+	Added snow to be shown when no processor is active/installed
+	Changed a number of "foreach" to "for (int i ....)" for speed

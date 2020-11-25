@@ -33,10 +33,6 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="CactEye2, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\CactEye2\bin\Release\CactEye2.dll</HintPath>
-    </Reference>
     <Reference Include="$(KSPDIR)\KSP_x64_Data\Managed\Assembly*.dll">
       <Private>False</Private>
     </Reference>
@@ -55,6 +51,12 @@
   <ItemGroup>
     <Compile Include="DOEWrapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CactEye2\CactEye2.csproj">
+      <Project>{a72d76b0-e168-42fb-9b3b-7b58476978bc}</Project>
+      <Name>CactEye2</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

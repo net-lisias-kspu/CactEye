@@ -14,6 +14,10 @@ PART
 	node_stack_bottom = 0.0, -0.75, 0.0, 0.0, -1.0, 0.0, 2
 	node_stack_top = 0.0, 0.75, 0.0, 0.0, 1.0, 0.0, 2
 	//node_stack_top2 = 0.0, -0.6, 0.0, 0.0, 1.0, 0.0, 0
+
+	node_stack_side1 = 0.784, 0.0, 0.0, 1.0, 0.0, 0.0, 1, 1
+	node_stack_side2 = 0.0, 0.0, 0.784, 0.0, 0.0, 1.0, 1, 1
+	node_stack_side3 = -0.784, 0.0, 0.0, -1.0, 0.0, 0.0, 1, 1
 	
 	// --- editor parameters ---
 	TechRequired = largeElectrics
@@ -26,7 +30,7 @@ PART
 	description = Can store several modules required to operate the telescope.
 	
 	// attachment rules: stack, srfAttach, allowStack, allowSrfAttach, allowCollision
-	attachRules = 1,0,1,1,0
+	attachRules = 1,0,1,0,0
 	
 	// --- standard part parameters ---
 	mass = 0.5

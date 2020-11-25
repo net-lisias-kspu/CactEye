@@ -2,7 +2,8 @@
 using System.Linq;
 using UnityEngine;
 using static CactEye2.CactEyeConfigMenu;
-using SpaceDustWrapper;
+using PartWrapper;
+using Random = System.Random;
 
 namespace CactEye2
 {
@@ -36,6 +37,16 @@ namespace CactEye2
         [KSPField(isPersistant = true)]
         public bool isRBEnabled;
 
+        [KSPField(isPersistant = false)]
+        public string CameraPartOwner = "CactEye";
+
+        [KSPField]
+        public Vector3 cameraPosition = Vector3.zero;
+        [KSPField]
+        public Vector3 cameraForward = Vector3.forward;
+        [KSPField]
+        public Vector3 cameraUp = Vector3.zero;
+
         public RBWrapper ResearchBodies;
 
 #if false
@@ -46,7 +57,8 @@ namespace CactEye2
         //private bool Error = false;
 
         private TelescopeMenu TelescopeControlMenu;
-        private SpaceDustWrapper.SDWrapper sdwrapper;
+        private PartWrapper.PartWrapper partWrapper;
+
 
         /*
          * Function name: OnStart
@@ -54,10 +66,13 @@ namespace CactEye2
          * at the start of the game directly after a scene load. In this case, the function will
          * instatiate the GUI.
          */
+
+
         public override void OnStart(StartState state)
         {
-            sdwrapper = new SDWrapper();
-            sdwrapper.InitPartWrapper(this.part);
+            partWrapper = new PartWrapper.PartWrapper();
+            partWrapper.InitPartWrapper(this.part, CameraPartOwner);
+
 #if false
             if (!IsSmallOptics)
             {
@@ -75,10 +90,18 @@ namespace CactEye2
 
 #endif
             //Attempt to instantiate the GUI
-            Transform temp = part.FindModelTransform(CameraTransformName);
+            var temp = part.FindModelTransform(CameraTransformName);
+
+            if (cameraPosition != Vector3.zero || cameraUp != Vector3.zero)
+            {
+                temp.localPosition = cameraPosition;
+                temp.localRotation = Quaternion.LookRotation(cameraForward, cameraUp);
+            }
+
             try
             {
                 TelescopeControlMenu = new TelescopeMenu(temp);
+
                 TelescopeControlMenu.scienceMultiplier = this.scienceMultiplier;
                 TelescopeControlMenu.SetSmallOptics(IsSmallOptics);
                 TelescopeControlMenu.SetScopeOpen(IsFunctional);
@@ -88,7 +111,7 @@ namespace CactEye2
                     TelescopeControlMenu.SetAperature(opticsAnimate);
                 }
 #else
-                TelescopeControlMenu.SetSDWrapper(sdwrapper);
+                TelescopeControlMenu.SetSDWrapper(partWrapper);
 #endif
             }
             catch (Exception E)
@@ -138,7 +161,6 @@ namespace CactEye2
         //public override void OnUpdate()
         void FixedUpdate()
         {
-
             //Enable Repair Scope context menu option if the scope is damaged.
             if (IsDamaged)
             {
@@ -166,12 +188,12 @@ namespace CactEye2
 #else
                 if (!IsSmallOptics)
                 {
-                    if (sdwrapper.animTime < 0.5 && IsFunctional)
+                    if (partWrapper.animTime < 0.5 && IsFunctional)
                     {
                         IsFunctional = false;
                         CactEyeAsteroidSpawner.instance.UpdateSpawnRate();
                     }
-                    if (sdwrapper.animTime > 0.5 && !IsFunctional)
+                    if (partWrapper.animTime > 0.5 && !IsFunctional)
                     {
                         IsFunctional = true;
                         CactEyeAsteroidSpawner.instance.UpdateSpawnRate();
@@ -201,11 +223,11 @@ namespace CactEye2
             }
 
             //Send updated position information to the telescope gui object.
-            if (TelescopeControlMenu != null)
+            //if (TelescopeControlMenu != null)
+            if (TelescopeControlMenu.IsGUIVisible)
             {
-                TelescopeControlMenu.UpdatePosition(part.FindModelTransform(CameraTransformName));
+                TelescopeControlMenu.FixedUpdate(part, CameraTransformName);
             }
-
         }
 
   

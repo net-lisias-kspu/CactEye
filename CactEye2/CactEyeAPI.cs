@@ -21,9 +21,9 @@ namespace CactEye2
 {
 
     [KSPAddon(KSPAddon.Startup.Flight, false)]
-    class CactEyeAPI: MonoBehaviour
+    class CactEyeAPI : MonoBehaviour
     {
-        
+
         public static Dictionary<CelestialBody, double> bodyDist = new Dictionary<CelestialBody, double>();
         public static Dictionary<CelestialBody, double> bodySize = new Dictionary<CelestialBody, double>();
         public static Dictionary<CelestialBody, Vector3d> bodyAngle = new Dictionary<CelestialBody, Vector3d>();
@@ -120,10 +120,12 @@ namespace CactEye2
                 Log.Info(" sunDirection: " + Sun.Instance.sunDirection.ToString());
                 DoOnce = false;
             }
-            
 
-            foreach (CelestialBody body in FlightGlobals.Bodies)
+            for (int i = 0; i < FlightGlobals.Bodies.Count; i++)
             {
+                CelestialBody body = FlightGlobals.Bodies[i];
+                //foreach (CelestialBody body in FlightGlobals.Bodies)
+                //{
                 if (bodyDist.ContainsKey(body))
                 {
                     bodyDist[body] = body.GetAltitude(FlightGlobals.ship_position) + body.Radius;
@@ -132,7 +134,7 @@ namespace CactEye2
                 {
                     bodyDist.Add(body, body.GetAltitude(FlightGlobals.ship_position) + body.Radius);
                 }
-                
+
 
                 if (bodySize.ContainsKey(body))
                 {
@@ -159,8 +161,11 @@ namespace CactEye2
             {
                 bodyCheck[counter++] = pair.Key;
             }
-            foreach (CelestialBody body in bodyCheck)
+            for (int i = 0; i < bodyCheck.Length; i++)
             {
+                CelestialBody body = bodyCheck[i];
+                //foreach (CelestialBody body in bodyCheck)
+                //{
                 if (Planetarium.GetUniversalTime() > occultationExpTimes[body])
                 {
                     print("REGENERATING OCCULTATION EXP FOR " + body.bodyName);
@@ -172,8 +177,11 @@ namespace CactEye2
         //Is this body covered by any other body?
         public static string CheckOccult(CelestialBody body)
         {
-            foreach (CelestialBody bodyC in FlightGlobals.Bodies)
+            for (int i = 0; i < FlightGlobals.Bodies.Count; i++)
             {
+                CelestialBody bodyC = FlightGlobals.Bodies[i];
+                //foreach (CelestialBody bodyC in FlightGlobals.Bodies)
+                //{
                 //if (!bodyDist.ContainsKey(bodyC))
                 //{
                 //    //print("Could not find body " + bodyC.bodyName);
@@ -188,8 +196,11 @@ namespace CactEye2
 
         public static string CheckOccult(Vessel vessel)
         {
-            foreach (CelestialBody bodyC in FlightGlobals.Bodies)
+            for (int i = 0; i < FlightGlobals.Bodies.Count; i++)
             {
+                CelestialBody bodyC = FlightGlobals.Bodies[i];
+                //foreach (CelestialBody bodyC in FlightGlobals.Bodies)
+                //{
                 if (!bodyDist.ContainsKey(bodyC))
                 {
                     print("Could not find body " + bodyC.bodyName);
@@ -255,12 +266,21 @@ namespace CactEye2
                 if (planetBody != FlightGlobals.Bodies[1])
                 {
                     List<Vessel> astList = new List<Vessel>();
-                    foreach (Vessel v in FlightGlobals.Vessels)
+                    for (int i = 0; i < FlightGlobals.Vessels.Count; i++)
                     {
-                        foreach (ProtoPartSnapshot p in v.protoVessel.protoPartSnapshots)
+                        Vessel v = FlightGlobals.Vessels[i];
+                        //foreach (Vessel v in FlightGlobals.Vessels)
+                        //{
+
+                        for (int i1 = 0; i1 < v.protoVessel.protoPartSnapshots.Count; i1++)
                         {
-                            foreach (ProtoPartModuleSnapshot m in p.modules)
+                            for (int i2 = 0; i2 < v.protoVessel.protoPartSnapshots[i1].modules.Count; i2++)
                             {
+                                ProtoPartModuleSnapshot m = v.protoVessel.protoPartSnapshots[i1].modules[i2];
+                        //foreach (ProtoPartSnapshot p in v.protoVessel.protoPartSnapshots)
+                        //{
+                        //  foreach (ProtoPartModuleSnapshot m in p.modules)
+                        //  {
                                 if (m.moduleName == "ModuleAsteroid")
                                 {
                                     if (v.DiscoveryInfo.trackingStatus.Value == "Tracking" && !astList.Contains(v))

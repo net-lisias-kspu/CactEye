@@ -71,6 +71,7 @@ namespace CactEye2
         static private double timer = 6f;
         private double storedTime = 0f;
 
+
         static internal void InitStatics()
         {
             ToolbarControl.LoadImageFromFile(ref PreviewTexture, "GameData/CactEye/PluginData/Icons/preview");
@@ -99,6 +100,7 @@ namespace CactEye2
 
         public TelescopeMenu(Transform Position)
         {
+            Log.Info("TelescopeMenu instantiator");
             //unique id for the gui window.
             this.WindowTitle = "CactEye Telescope Control System";
             this.WindowId = WindowTitle.GetHashCode() + new System.Random().Next(65536);
@@ -138,8 +140,8 @@ namespace CactEye2
             aperature = mag;
         }
 #else
-        private SpaceDustWrapper.SDWrapper sdwrapper;
-        public void SetSDWrapper(SpaceDustWrapper.SDWrapper wrapper)
+        private PartWrapper.PartWrapper sdwrapper;
+        public void SetSDWrapper(PartWrapper.PartWrapper wrapper)
         {
             sdwrapper = wrapper;
         }
@@ -163,8 +165,10 @@ namespace CactEye2
                     //{
                     //    ActiveProcessor.ActivateProcessor();
                     //}
-
-                    ActiveProcessor.ActivateProcessor();
+                    if (ActiveProcessor != null)
+                        ActiveProcessor.ActivateProcessor();
+                    else
+                        Log.Error("Exception 3: No active Processors found.");
                 }
                 catch (Exception E)
                 {
@@ -186,6 +190,27 @@ namespace CactEye2
             }
             IsGUIVisible = !IsGUIVisible;
         }
+        //static Texture2D blackBackground = new Texture2D(1, 1);
+        //private static Texture2D[] _textureWhiteNoise;
+        internal static Texture2D[] TextureNoSignal;
+
+        int TextureNoSignalId = 0;
+
+
+        int pauseFlag = 0;
+        internal void UpdateWhiteNoise()
+        {
+            pauseFlag++;
+            if (pauseFlag < 4) return;
+            pauseFlag = 0;
+
+            TextureNoSignalId++;
+
+            if (TextureNoSignalId >= TextureNoSignal.Length)
+            {
+                TextureNoSignalId = 0;
+            }
+        }
 
         private void MainGUI(int WindowID)
         {
@@ -196,12 +221,19 @@ namespace CactEye2
             if (GUI.Button(new Rect(WindowPosition.width - 18, 2, 16, 16), ""))
             {
                 Toggle();
+                return;
             }
             GUILayout.EndHorizontal();
             GUILayout.BeginHorizontal();
             //What you see looking through the telescope.
             ScopeRect = GUILayoutUtility.GetRect(400f, 400f);
-            Texture2D ScopeScreen = CameraModule.UpdateTexture(ActiveProcessor);
+            Texture2D ScopeScreen;
+            if (ActiveProcessor)
+                ScopeScreen = CameraModule.UpdateTexture(ActiveProcessor);
+            else
+            {
+                ScopeScreen = TextureNoSignal[TextureNoSignalId];
+            }
             GUI.DrawTexture(ScopeRect, ScopeScreen);
 
 
@@ -217,7 +249,6 @@ namespace CactEye2
             GUI.Label(new Rect(ScopeRect.xMin + 16, ScopeRect.yMin + 16, 600, 32), new GUIContent(Notification));
 
             ControlRect = GUILayoutUtility.GetRect(300f, 20f);
-
             if (Processors.Count > 1)
             {
                 //Previous button
@@ -272,7 +303,6 @@ namespace CactEye2
 
             if (FlightGlobals.fetch.VesselTarget != null && ActiveProcessor && HighLogic.CurrentGame.Mode != Game.Modes.SANDBOX)
             {
-                //GUI.skin.GetStyle("Label").alignment = TextAnchor.MiddleRight;
                 GUI.Label(new Rect(425f, 252f, 150, 32), "Process Data:", middleRight);
                 if (GUI.Button(new Rect(585f, 252f, 32, 32), Atom6Icon))
                 {
@@ -305,6 +335,7 @@ namespace CactEye2
 
             if (ActiveProcessor)
             {
+#if false
                 //Close window down if we run out of power
                 if (!ActiveProcessor.IsActive())
                 {
@@ -312,11 +343,12 @@ namespace CactEye2
                     //    ScreenMessages.PostScreenMessage("Image processor is out of power. Please restore power to telescope.", 6, ScreenMessageStyle.UPPER_CENTER);
                     ActiveProcessor = null;
                     Notification = "Image Processor is out of power. Please restore power to telescope";
-                    ScreenMessages.PostScreenMessage(Notification, 3f, ScreenMessageStyle.UPPER_CENTER);
+                    ScreenMessages.PostScreenMessage(Notification, 5f, ScreenMessageStyle.UPPER_CENTER);
                     timer = 0f;
                     Toggle();
+                    //return;
                 }
-
+#endif
                 //Zoom Feedback Label.
                 string LabelZoom = "Zoom/Magnification: x";
                 if (CameraModule.FieldOfView > 0.0064)
@@ -335,14 +367,16 @@ namespace CactEye2
 
                 //Zoom Slider Controls.
                 GUILayout.BeginHorizontal();
-                FieldOfView = GUILayout.HorizontalSlider(FieldOfView, 0f, 1f);
-                CameraModule.FieldOfView = 0.5f * Mathf.Pow(4f - FieldOfView * (4f - Mathf.Pow(ActiveProcessor.GetMinimumFOV(), (1f / 3f))), 3);
-                GUILayout.EndHorizontal();
+                if (ActiveProcessor)
+                {
+                    FieldOfView = GUILayout.HorizontalSlider(FieldOfView, 0f, 1f);
+                    CameraModule.FieldOfView = 0.5f * Mathf.Pow(4f - FieldOfView * (4f - Mathf.Pow(ActiveProcessor.GetMinimumFOV(), (1f / 3f))), 3);
+                }
+                //GUILayout.EndHorizontal();
 
                 //Log spam
                 //Debug.Log("CactEye 2: MinimumFOV = " + ActiveProcessor.GetMinimumFOV().ToString());
             }
-
             else
             {
                 GUILayout.BeginHorizontal();
@@ -350,6 +384,7 @@ namespace CactEye2
                 GUILayout.Label("Processor not installed; optics module cannot function without an image processor.", upperLeft);
                 GUILayout.EndHorizontal();
             }
+            GUILayout.EndHorizontal();
 
             //Gyro GUI. Active only if the craft has an active gyro
             if (GyroEnabled)
@@ -369,15 +404,30 @@ namespace CactEye2
             }
 
             //Make the window draggable by the top bar only.
-            GUI.DragWindow(new Rect(0, 0, WindowPosition.width, 16));
+            //GUI.DragWindow(new Rect(0, 0, WindowPosition.width, 16));
+            GUI.DragWindow();
         }
 
         public void DrawGUI()
         {
-
             if (!PauseMenu.isOpen && !FlightResultsDialog.isDisplaying && !MapView.MapIsEnabled)
             {
                 WindowPosition = ClickThruBlocker.GUILayoutWindow(WindowId, WindowPosition, MainGUI, WindowTitle);
+            }
+        }
+
+        internal void FixedUpdate(Part part, string CameraTransformName)
+        {
+            UpdatePosition(part.FindModelTransform(CameraTransformName));
+            UpdateWhiteNoise();
+            //Close window down if we run out of power
+            if (!ActiveProcessor.IsActive())
+            {
+                ActiveProcessor = null;
+                Notification = "Image Processor is out of power. Please restore power to telescope";
+                ScreenMessages.PostScreenMessage(Notification, 5f, ScreenMessageStyle.UPPER_CENTER);
+                timer = 0f;
+                Toggle();
             }
 
         }
@@ -552,8 +602,12 @@ namespace CactEye2
         {
             ReactionWheels.Clear();
 
-            foreach (Part p in FlightGlobals.ActiveVessel.Parts)
+            for (int i = 0; i < FlightGlobals.ActiveVessel.Parts.Count; i++)
             {
+                Part p = FlightGlobals.ActiveVessel.Parts[i];
+
+            //foreach (Part p in FlightGlobals.ActiveVessel.Parts)
+            //{
                 CactEyeGyro mrw = p.GetComponent<CactEyeGyro>();
                 if (mrw != null)
                 {
@@ -599,8 +653,12 @@ namespace CactEye2
         {
             Processors.Clear();
 
-            foreach (Part p in FlightGlobals.ActiveVessel.Parts)
+            for (int i = 0; i < FlightGlobals.ActiveVessel.Parts.Count; i++)
             {
+                Part p = FlightGlobals.ActiveVessel.Parts[i];
+
+            //foreach (Part p in FlightGlobals.ActiveVessel.Parts)
+            //{
                 CactEyeProcessor cpu = p.GetComponent<CactEyeProcessor>();
                 if (cpu != null)
                 {
@@ -623,6 +681,8 @@ namespace CactEye2
                 //    ActiveProcessor.Active = true;
                 //}
             }
+            else
+                ActiveProcessor = null;
         }
 
         /* ************************************************************************************************
