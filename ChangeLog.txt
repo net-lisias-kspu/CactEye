@@ -1,6 +1,10 @@
 ChangeLog
 
-1.5.2.0 (unreleased)
+1.5.2.1
+	Fixed build process
+	Moved GameData into root dir
+
+1.5.2
 	Replaced stock toolbar with ToolbarController
 	Added support for the ClickThroughBlocker
 	Added impactTolerance to the following parts:

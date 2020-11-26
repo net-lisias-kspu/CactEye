@@ -23,9 +23,9 @@ rem    but not always
 rem LICENSE is the license file
 rem README is the readme file
 
-set GAMEDIR=xxxxx
+set GAMEDIR=CactEye
 set GAMEDATA="GameData\"
-set VERSIONFILE=%GAMEDIR%.version
+set VERSIONFILE=CactEyeTelescopes.version
 set LICENSE=License.txt
 set README=ReadMe.md
 

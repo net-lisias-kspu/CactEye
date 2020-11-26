@@ -12,9 +12,9 @@ set GAMEDIR=CactEye
 set GAMEDATA="GameData"
 set VERSIONFILE=CactEyeTelescopes.version
 
-copy /Y "%1%2" "CactEyeOptics\%GAMEDATA%\%GAMEDIR%\Plugins"
-copy /Y %VERSIONFILE% CactEyeOptics\%GAMEDATA%\%GAMEDIR%
+copy /Y "%1%2" "%GAMEDATA%\%GAMEDIR%\Plugins"
+copy /Y %VERSIONFILE% %GAMEDATA%\%GAMEDIR%
 
-xcopy /y /s /I CactEyeOptics\%GAMEDATA%\%GAMEDIR% "%H%\GameData\%GAMEDIR%"
+xcopy /y /s /I %GAMEDATA%\%GAMEDIR% "%H%\GameData\%GAMEDIR%"
 
 rem pause
