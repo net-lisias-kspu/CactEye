@@ -7,8 +7,8 @@
     <ProjectGuid>{2DB40EB1-0264-4118-9072-1B2508F9CC8F}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SpaceDustWrapper</RootNamespace>
-    <AssemblyName>SpaceDustWrapper</AssemblyName>
+    <RootNamespace>PartWrapperWrapper</RootNamespace>
+    <AssemblyName>PartWrapper</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>

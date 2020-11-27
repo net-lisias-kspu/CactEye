@@ -1,5 +1,9 @@
 ChangeLog
 
+1.5.2.2 (unreleased)
+	Added KSPAssemblyDependency lines to AssemblyInfo for needed libraries
+	Fixed some of the PartWrapper rename whcih was missed
+
 1.5.2.1
 	Fixed build process
 	Moved GameData into root dir

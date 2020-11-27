@@ -6,7 +6,7 @@ using static CactEye2.CactEyeConfigMenu;
 
 namespace CactEye2
 {
-    abstract public class CactEyeProcessor: PartModule
+    abstract public class CactEyeProcessor : PartModule
     {
         [KSPField(isPersistant = false)]
         public string Type = "Default Processor";
@@ -43,15 +43,15 @@ namespace CactEye2
             StyleDefault = new GUIStyleState();
         }
 
-    /* ************************************************************************************************
-     * Function Name: GetProessorType
-     * Input: None
-     * Output: The internal variable "Type"
-     * Purpose: This function will return the type of processor that another class is working with.
-     * The variable "Type" is a variable that can be modified through the part config files, and 
-     * specifies what type of processor the part is. This type will determine how the class behaves.
-     * ************************************************************************************************/
-    public string GetProcessorType()
+        /* ************************************************************************************************
+         * Function Name: GetProcessorType
+         * Input: None
+         * Output: The internal variable "Type"
+         * Purpose: This function will return the type of processor that another class is working with.
+         * The variable "Type" is a variable that can be modified through the part config files, and 
+         * specifies what type of processor the part is. This type will determine how the class behaves.
+         * ************************************************************************************************/
+        public string GetProcessorType()
         {
             return Type;
         }
@@ -171,19 +171,19 @@ namespace CactEye2
             bool rbInit = false;
             if (CactEyeOptics.IsModInstalled("ResearchBodies"))
             {
-                if(!RBWrapper.APIRBReady)
+                if (!RBWrapper.APIRBReady)
                 {
                     rbInit = RBWrapper.InitRBWrapper();
                 }
             }
-            
+
             //CorrectLightDirection();
             if (CactEyeConfig.DebugMode)
             {
                 Log.Info(" Debug: RB init returned " + rbInit.ToString());
                 Log.Info(" Processor activated! " + Active.ToString());
             }
-            CactEyeAsteroidSpawner.instance.UpdateSpawnRate();         
+            CactEyeAsteroidSpawner.instance.UpdateSpawnRate();
         }
 
         /* ************************************************************************************************
@@ -264,7 +264,7 @@ namespace CactEye2
         {
             //if (OriginalSunDirection != null)
             //{
-                Sun.Instance.sunDirection = OriginalSunDirection;
+            Sun.Instance.sunDirection = OriginalSunDirection;
             //}
         }
 
@@ -317,7 +317,7 @@ namespace CactEye2
 
             if (AvailableTransmitters.Count > 0)
             {
-                AvailableTransmitters[0].TransmitData(new List<ScienceData>{ Data });
+                AvailableTransmitters[0].TransmitData(new List<ScienceData> { Data });
             }
 
             ResetExperimentGUI();
@@ -352,7 +352,7 @@ namespace CactEye2
          * stored science experiments. This simply calls a coroutine, so as to allow execution without 
          * dropping the frame rate.
          * ************************************************************************************************/
-        public void ReviewData(ScienceData Data, Texture2D Screenshot) 
+        public void ReviewData(ScienceData Data, Texture2D Screenshot)
         {
             StartCoroutine(ReviewDataCoroutine(Data, Screenshot));
         }
@@ -371,7 +371,7 @@ namespace CactEye2
 
             //GUIStyle ProgressStyle;
             //GUIStyle ScienceStyle;
-            
+
             ExperimentResultDialogPage page = new ExperimentResultDialogPage
                 (
                 FlightGlobals.ActiveVessel.rootPart,    //hosting part
@@ -382,9 +382,9 @@ namespace CactEye2
                 "",                                     //string for transmit warning
                 false,                                  //show the reset button
                 new ScienceLabSearch(this.part.vessel, Data),//show the lab option
-                new Callback<ScienceData>(_onPageDiscard), 
-                new Callback<ScienceData>(_onPageKeep), 
-                new Callback<ScienceData>(_onPageTransmit), 
+                new Callback<ScienceData>(_onPageDiscard),
+                new Callback<ScienceData>(_onPageKeep),
+                new Callback<ScienceData>(_onPageTransmit),
                 new Callback<ScienceData>(_onPageSendToLab)
                 );
 
@@ -392,20 +392,20 @@ namespace CactEye2
             ExperimentsResultDialog ScienceDialog = ExperimentsResultDialog.DisplayResult(page);
 
             //Store the old dialog gui information
-//            ProgressStyle = ScienceDialog.guiSkin.customStyles.Where(n => n.name == "progressBarFill2").First();
-//            GUIStyle style = ScienceDialog.guiSkin.box;
-//            StyleDefault = style.normal;
-//            SkinStored = ScienceDialog.guiSkin;
+            //            ProgressStyle = ScienceDialog.guiSkin.customStyles.Where(n => n.name == "progressBarFill2").First();
+            //            GUIStyle style = ScienceDialog.guiSkin.box;
+            //            StyleDefault = style.normal;
+            //            SkinStored = ScienceDialog.guiSkin;
 
             ////Lets put a pretty picture on the science dialog.
-//            ScienceStyle = ScienceDialog.guiSkin.box;
+            //            ScienceStyle = ScienceDialog.guiSkin.box;
             ScienceStyle.normal.background = Screenshot;
 
-//            ScienceDialog.guiSkin.window.fixedWidth = 587f;
+            //            ScienceDialog.guiSkin.window.fixedWidth = 587f;
             ScienceStyle.fixedWidth = 512f;
             ScienceStyle.fixedHeight = 288f;
 
-            
+
         }
 
         private void ResetExperimentGUI()
