@@ -99,7 +99,7 @@ namespace CactEye2
 
             if (IsFunctional)
             {
-                if (CactEyeConfig.GyroDecay)
+                if (HighLogic.CurrentGame.Parameters.CustomParams<CactiSettings>().GyroDecay)
                 {
                     Lifetime = (float)((CreationTime + (SecondsToEarthDays * lifeSpan) - Planetarium.GetUniversalTime()) / (SecondsToEarthDays * lifeSpan));
                 }

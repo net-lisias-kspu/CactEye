@@ -1,49 +1,49 @@
 ﻿using System;
 using UnityEngine;
-using static CactEye2.InitialSetup;
+using static CactEye2.OccultationScienceEventWindow;
 using SpaceTuxUtility;
 
-
+#if false
 namespace CactEye2
 {
 
 
     /* ************************************************************************************************
-    * Class Name: CactEyeAsteroidSpawner_Flight
-    * Purpose: This will allow CactEye's custom asteroid spawner to run in multiple specific scenes. 
+    * Class Name: CactEyeCometSpawner_Flight
+    * Purpose: This will allow CactEye's custom comet spawner to run in multiple specific scenes. 
     * Shamelessly stolen from Starstrider42, who shamelessly stole it from Trigger Au.
     * Thank you!
     * ************************************************************************************************/
     [KSPAddon(KSPAddon.Startup.Flight, false)]
-    internal class CactEyeAsteroidSpawner_Flight : CactEyeAsteroidSpawner
+    internal class CactEyeCometSpawner_Flight : CactEyeCometSpawner
     {
     }
 
     /* ************************************************************************************************
-    * Class Name: CactEyeAsteroidSpawner_SpaceCentre
-    * Purpose: This will allow CactEye's custom asteroid spawner to run in multiple specific scenes. 
+    * Class Name: CactEyeCometSpawner_SpaceCentre
+    * Purpose: This will allow CactEye's custom comet spawner to run in multiple specific scenes. 
     * Shamelessly stolen from Starstrider42, who shamelessly stole it from Trigger Au.
     * Thank you!
     * ************************************************************************************************/
     [KSPAddon(KSPAddon.Startup.SpaceCentre, false)]
-    internal class CactEyeAsteroidSpawner_SpaceCentre : CactEyeAsteroidSpawner
+    internal class CactEyeCometSpawner_SpaceCentre : CactEyeCometSpawner
     {
     }
 
     /* ************************************************************************************************
-    * Class Name: CactEyeAsteroidSpawner_TrackingStation
-    * Purpose: This will allow CactEye's custom asteroid spawner to run in multiple specific scenes. 
+    * Class Name: CactEyeCometSpawner_TrackingStation
+    * Purpose: This will allow CactEye's custom comet spawner to run in multiple specific scenes. 
     * Shamelessly stolen from Starstrider42, who shamelessly stole it from Trigger Au.
     * Thank you!
     * ************************************************************************************************/
     [KSPAddon(KSPAddon.Startup.TrackingStation, false)]
-    internal class CactEyeAsteroidSpawner_TrackStation : CactEyeAsteroidSpawner
+    internal class CactEyeCometSpawner_TrackStation : CactEyeCometSpawner
     {
     }
 
-    internal class CactEyeAsteroidSpawner : MonoBehaviour
+    internal class CactEyeCometSpawner : MonoBehaviour
     {
-        internal static CactEyeAsteroidSpawner instance;
+        internal static CactEyeCometSpawner instance;
 
         private int GlobalDiscoveryRate;
 
@@ -56,10 +56,9 @@ namespace CactEye2
          * ************************************************************************************************/
         public void Start()
         {
-            if (HighLogic.CurrentGame == null)
-                return;
             instance = this;
-            if (HighLogic.CurrentGame.Parameters.CustomParams<CactiSettings>().AsteroidSpawner)
+            Log.Info("CactEyeCometSpawner.Start, CactEyeConfig.CometSpawner: " + CactEyeConfig.CometSpawner);
+            if (CactEyeConfig.CometSpawner)
             {
                 StartCoroutine(DelayedStart());
             }
@@ -70,7 +69,7 @@ namespace CactEye2
          * Input: N/A
          * Output: N/A
          * Purpose: This function will run directly after the start of the loaded scene. It will calculate
-         * the discovery rate, and then adjust the spawn rate of asteroids if it can.
+         * the discovery rate, and then adjust the spawn rate of comets if it can.
          * ************************************************************************************************/
         public System.Collections.IEnumerator DelayedStart()
         {
@@ -86,9 +85,9 @@ namespace CactEye2
          * Function Name: CalculateGlobalDiscoveryRate
          * Input: N/A
          * Output: N/A
-         * Purpose: This function will scan for any active telescopes that are equipped with an asteroid
+         * Purpose: This function will scan for any active telescopes that are equipped with an comet
          * processor that is active and functioning correctly. It will then calculate what the total 
-         * spawn rate should be for the asteroid spawner based on available telescopes.
+         * spawn rate should be for the comet spawner based on available telescopes.
          * ************************************************************************************************/
         private void CalculateGlobalDiscoveryRate()
         {
@@ -105,9 +104,9 @@ namespace CactEye2
                     {
                         foreach (var m in p.Modules)
                         {
-                            if (m.moduleName == "CactEyeAsteroidProcessor")
+                            if (m.moduleName == "CactEyeCometProcessor")
                             {
-                                CactEyeAsteroidProcessor ceap = m as CactEyeAsteroidProcessor;
+                                CactEyeCometProcessor ceap = m as CactEyeCometProcessor;
                                 if (ceap.Active)
                                 {
                                     GlobalDiscoveryRate -= ceap.DiscoveryRate;
@@ -124,27 +123,27 @@ namespace CactEye2
                     Log.Info("Vessel not loaded: " + vessel.name);
                     foreach (ProtoPartSnapshot part in vessel.protoVessel.protoPartSnapshots)
                     {
-                        ProtoPartModuleSnapshot cpu = part.modules.Find(n => n.moduleName == "CactEyeAsteroidProcessor");
-                        if (cpu != null && cpu.moduleValues.SafeLoad("Active", false))
+                        ProtoPartModuleSnapshot cpu = part.modules.Find(n => n.moduleName == "CactEyeCometProcessor");
+                        if (cpu != null && bool.Parse(cpu.moduleValues.GetValue("Active")))
                         {
                             int PartDiscoveryRate = 0;
                             try
                             {
-                                PartDiscoveryRate = cpu.moduleValues.SafeLoad("DiscoveryRate", 0);
+                                PartDiscoveryRate = int.Parse(cpu.moduleValues.GetValue("DiscoveryRate"));
                             }
-                            catch (Exception)
+                            catch (Exception e)
                             {
-                                Log.Error("Asteroid Spawner: Was not able to retrieve a discovery rate from an active telescope");
+                                Log.Error("Comet Spawner: Was not able to retrieve a discovery rate from an active telescope");
                             }
                             //int.TryParse(cpu.moduleValues.GetValue("DiscoveryRate"), out PartDiscoveryRate);
                             Log.Info("ceap.Active is true, PartDiscoveryRate: " + PartDiscoveryRate);
 
                             GlobalDiscoveryRate -= PartDiscoveryRate;
 
-                            if (HighLogic.CurrentGame.Parameters.CustomParams<CactiSettings>().DebugMode)
+                            if (CactEyeConfig.DebugMode)
                             {
-                                Log.Error("Asteroid Spawner: Asteroid Processor Found!");
-                                Log.Error("Asteroid Spawner: Discovery rate: " + PartDiscoveryRate.ToString());
+                                Log.Error("Comet Spawner: Comet Processor Found!");
+                                Log.Error("Comet Spawner: Discovery rate: " + PartDiscoveryRate.ToString());
                             }
                         }
                     }
@@ -152,11 +151,11 @@ namespace CactEye2
 
                 //foreach (Part part in vessel.Parts)
                 //{
-                //    CactEyeAsteroidProcessor cpu = part.GetComponent<CactEyeAsteroidProcessor>();
+                //    CactEyeCometProcessor cpu = part.GetComponent<CactEyeCometProcessor>();
                 //    if (cpu != null && cpu.Active)
                 //    {
                 //        GlobalDiscoveryRate -= cpu.DiscoveryRate;
-                //        Debug.Log("CactEye 2: Asteroid Spawner: Asteroid Processor Found!");
+                //        Debug.Log("CactEye 2: Comet Spawner: Comet Processor Found!");
                 //    }
                 //}
 
@@ -169,25 +168,25 @@ namespace CactEye2
          * Input: N/A
          * Output: N/A
          * Purpose: This function will check to see if certain mods that are imcompatible with the 
-         * Asteroid spawner are installed. If they are, CactEye will not override the spawning of asteroids.
-         * This is primarily to prevent CactEye from interfering and conflicting with CustomAsteroids by
+         * Comet spawner are installed. If they are, CactEye will not override the spawning of comets.
+         * This is primarily to prevent CactEye from interfering and conflicting with CustomComets by
          * Starstrider42.
          * ************************************************************************************************/
         private bool CheckForIncompatibleMods()
         {
-            Log.Info("CustomAsteroids: " + HasMod.hasMod("CustomAsteroids"));
-            return HasMod.hasMod("CustomAsteroids");
+            Log.Info("CustomComets: " + HasMod.hasMod("CustomComets"));
+            return HasMod.hasMod("CustomComets");
         }
 
         /* ************************************************************************************************
          * Function Name: AdjustSpawnRate
          * Input: N/A
          * Output: N/A
-         * Purpose: This function will adjust the spawn rate of the stock asteroid spawner to CactEye's 
-         * own calculated value, of which is based on the avialability of asteroid telescopes.
-         * This function will not run if CustomAsteroids is installed at this time. Perhaps in the future,
-         * this can be modified to allow CactEye and CustomAsteroids to work together, but this will require
-         * some changes in CustomAsteroids first.
+         * Purpose: This function will adjust the spawn rate of the stock comet spawner to CactEye's 
+         * own calculated value, of which is based on the avialability of comet telescopes.
+         * This function will not run if CustomComets is installed at this time. Perhaps in the future,
+         * this can be modified to allow CactEye and CustomComets to work together, but this will require
+         * some changes in CustomComets first.
          * ************************************************************************************************/
         private void AdjustSpawnRate()
         {
@@ -196,26 +195,26 @@ namespace CactEye2
 
                 try
                 {
-                    ScenarioDiscoverableObjects AsteroidSpawner = HighLogic.CurrentGame.scenarios.Find(scenario => scenario.moduleRef is ScenarioDiscoverableObjects).moduleRef as ScenarioDiscoverableObjects;
+                    ScenarioDiscoverableObjects CometSpawner = HighLogic.CurrentGame.scenarios.Find(scenario => scenario.moduleRef is ScenarioDiscoverableObjects).moduleRef as ScenarioDiscoverableObjects;
 
-                    Log.Info("AsteroidSpawner.spawnOddsAgainst: " + AsteroidSpawner.spawnOddsAgainst + ", GlobalDiscoveryRate: " + GlobalDiscoveryRate);
-                    AsteroidSpawner.spawnOddsAgainst = GlobalDiscoveryRate;
+                    Log.Info("CometSpawner.spawnOddsAgainst: " + CometSpawner.spawnOddsAgainst + ", GlobalDiscoveryRate: " + GlobalDiscoveryRate);
+                    CometSpawner.spawnOddsAgainst = GlobalDiscoveryRate;
 
-                    if (HighLogic.CurrentGame.Parameters.CustomParams<CactiSettings>().DebugMode)
+                    if (CactEyeConfig.DebugMode)
                     {
-                        Log.Error("Asteroid Spawner: spawnOddsAgainst = " + AsteroidSpawner.spawnOddsAgainst.ToString());
+                        Log.Error("Comet Spawner: spawnOddsAgainst = " + CometSpawner.spawnOddsAgainst.ToString());
                     }
                 }
                 catch (Exception e)
                 {
-                    Log.Error("Asteroid Spawner: Was not able to adjust spawn rate; AsteroidSpawner object is null!");
+                    Log.Error("Comet Spawner: Was not able to adjust spawn rate; CometSpawner object is null!");
                     Log.Error(e.ToString());
                 }
             }
 
             else
             {
-                Log.Error("An incompatible mod (most likely Custom Asteroids) was detected. CactEye will not adjust the asteroid spawn rate.");
+                Log.Error("An incompatible mod (most likely Custom Comets) was detected. CactEye will not adjust the comet spawn rate.");
             }
         }
 
@@ -224,7 +223,7 @@ namespace CactEye2
          * Function Name: UpdateSpawnRate
          * Input: N/A
          * Output: N/A
-         * Purpose: This function will recalculate and readjust the spawn rate of asteroids. This is to
+         * Purpose: This function will recalculate and readjust the spawn rate of comets. This is to
          * allow for dynamic changes in the spawn rate as telescopes are enabled/disabled.
          * ************************************************************************************************/
         public void UpdateSpawnRate()
@@ -234,3 +233,5 @@ namespace CactEye2
         }
     }
 }
+
+#endif

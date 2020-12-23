@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using UnityEngine;
-using static CactEye2.CactEyeConfigMenu;
+using static CactEye2.InitialSetup;
 using PartWrapper;
 using Random = System.Random;
 
@@ -48,6 +48,9 @@ namespace CactEye2
         public Vector3 cameraUp = Vector3.zero;
 
         public RBWrapper ResearchBodies;
+
+        internal CactEyeProcessor ActiveProcessor;
+
 
 #if false
         private ModuleAnimateGeneric opticsAnimate;
@@ -127,16 +130,16 @@ namespace CactEye2
                 IsFunctional = true;
             }
 
-            if (CactEyeConfig.DebugMode)
+            if (HighLogic.CurrentGame.Parameters.CustomParams<CactiSettings>().DebugMode)
             {
-                Log.Info(" Debug: SmallApertureOpen is " + SmallApertureOpen.ToString());
-                Log.Info(" Debug: IsSmallOptics is " + IsSmallOptics.ToString());
-                Log.Info(" Debug: IsFunctional is " + IsFunctional.ToString());
-                Log.Info(" Debug: IsDamaged is " + IsDamaged.ToString());
+                Log.Info("Debug: SmallApertureOpen is " + SmallApertureOpen.ToString());
+                Log.Info("Debug: IsSmallOptics is " + IsSmallOptics.ToString());
+                Log.Info("Debug: IsFunctional is " + IsFunctional.ToString());
+                Log.Info("Debug: IsDamaged is " + IsDamaged.ToString());
             }
-
-
         }
+
+#if false
         /* ************************************************************************************************
          * Function Name: IsModInstalled
          * Input: Mod Name
@@ -148,12 +151,13 @@ namespace CactEye2
             return AssemblyLoader.loadedAssemblies.Any(a => a.name == assemblyName);
 
         }
+#endif
 
         /* ************************************************************************************************
-         * Function Name: OnUpdate
+         * Function Name: FixedUpdate
          * Input: None
          * Output: None
-         * Purpose: This function will run once every frame. It is used for some event handling, and for
+         * Purpose: This function will run once every physics frame. It is used for some event handling, and for
          * updating information such as the scope orientation and position. It will also check for the 
          * condition of when the telescope is pointed at the sun, and will damage the scope if it
          * detects excessive sun exposure.
@@ -161,6 +165,8 @@ namespace CactEye2
         //public override void OnUpdate()
         void FixedUpdate()
         {
+            if (HighLogic.LoadedSceneIsEditor)
+                return;
             //Enable Repair Scope context menu option if the scope is damaged.
             if (IsDamaged)
             {
@@ -202,12 +208,13 @@ namespace CactEye2
 
 #endif
 
-                //If the aperture is opened and the Sun is not occulted.
-                if (IsFunctional && CactEyeAPI.CheckOccult(FlightGlobals.Bodies[0]) == "")
+                //If the aperture is opened and the Sun is not occulted, and a solar filter is not enabled
+                if (IsFunctional && CactEyeAPI.CheckOccult(Planetarium.fetch.Sun) == "" &&(ActiveProcessor != null && ActiveProcessor.Type == "Occultation" && !((CactEyeOccultationProcessor)ActiveProcessor).solarFilter))
                 {
+
                     //Check if we're pointing at the sun
-                    Vector3d Heading = (FlightGlobals.Bodies[0].position - FlightGlobals.ship_position).normalized;
-                    if (Vector3d.Dot(transform.up, Heading) > 0.9 && CactEyeConfig.SunDamage)
+                    Vector3d Heading = (Planetarium.fetch.Sun.position - FlightGlobals.ship_position).normalized;
+                    if (Vector3d.Dot(transform.up, Heading) > 0.9 && HighLogic.CurrentGame.Parameters.CustomParams<CactiSettings>().SunDamage)
                     {
                         ScreenMessages.PostScreenMessage("Telescope pointed directly at sun, optics damaged and processors fried!", 6, ScreenMessageStyle.UPPER_CENTER);
                         BreakScope();
@@ -292,7 +299,7 @@ namespace CactEye2
             }
             catch
             {
-                Log.Error(" CactEye 2: Unknown Exception. If this is thrown before the vessel is unpacked, then it can be safely ignored.");
+                Log.Error("CactEye 2: Unknown Exception. If this is thrown before the vessel is unpacked, then it can be safely ignored.");
                 return false;
             }
         }
@@ -340,7 +347,7 @@ namespace CactEye2
             {
                 try
                 {
-                    TelescopeControlMenu.Toggle();
+                    TelescopeControlMenu.Toggle(this);
                 }
                 catch (Exception E)
                 {
@@ -357,7 +364,7 @@ namespace CactEye2
 
         public void OnGUI()
         {
-            if (TelescopeControlMenu.IsGUIVisible)
+            if (TelescopeControlMenu.IsGUIVisible && !FlightDriver.Pause)
                 TelescopeControlMenu.DrawGUI();
         }
 

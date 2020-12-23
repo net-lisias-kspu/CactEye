@@ -2,7 +2,8 @@
 using System.Text;
 using UnityEngine;
 using KSP.UI.Screens.Flight.Dialogs;
-using static CactEye2.CactEyeConfigMenu;
+using static CactEye2.InitialSetup;
+using SpaceTuxUtility;
 
 namespace CactEye2
 {
@@ -26,6 +27,7 @@ namespace CactEye2
         [KSPField(isPersistant = true)]
         public bool Active = false;
 
+
         protected List<ScienceData> StoredData = new List<ScienceData>();
 
         private Vector3d OriginalSunDirection;
@@ -39,7 +41,9 @@ namespace CactEye2
         {
             ScienceStyle = new GUIStyle();
             ProgressStyle = new GUIStyle();
-            SkinStored = new GUISkin();
+            //SkinStored = new GUISkin();
+            SkinStored =
+                ScriptableObject.CreateInstance<GUISkin>();
             StyleDefault = new GUIStyleState();
         }
 
@@ -131,16 +135,16 @@ namespace CactEye2
          * function's behavoir will change based on what processor is the active processor on the telescope.
          * Please see the individual definitions in sub classes for further details.
          * ************************************************************************************************/
-        public abstract string DoScience(Vector3 TargetPosition, float scienceMultiplier, float FOV, Texture2D Screenshot);
+        public abstract string DoScience(Vector3 TargetPosition, float scienceMultiplier, float FOV, Texture2D Screenshot, CactEyeProcessor ActiveProcessor);
 
         /* ************************************************************************************************
-         * Function Name: OnUpdate
+         * Function Name: FixedUpdate
          * Input: None
          * Output: None
-         * Purpose: This function will run once every frame. It is used for some event handling, and for
+         * Purpose: This function will run once every physics. It is used for some event handling, and for
          * producing an electric drain for the craft. 
          * ************************************************************************************************/
-        public override void OnUpdate()
+        public void FixedUpdate()
         {
 
             if (Active)
@@ -169,7 +173,8 @@ namespace CactEye2
         {
             Active = true;
             bool rbInit = false;
-            if (CactEyeOptics.IsModInstalled("ResearchBodies"))
+
+            if (HasMod.hasMod("ResearchBodies"))
             {
                 if (!RBWrapper.APIRBReady)
                 {
@@ -178,10 +183,10 @@ namespace CactEye2
             }
 
             //CorrectLightDirection();
-            if (CactEyeConfig.DebugMode)
+            if (HighLogic.CurrentGame.Parameters.CustomParams<CactiSettings>().DebugMode)
             {
-                Log.Info(" Debug: RB init returned " + rbInit.ToString());
-                Log.Info(" Processor activated! " + Active.ToString());
+                Log.Info("Debug: RB init returned " + rbInit.ToString());
+                Log.Info("Processor activated! " + Active.ToString());
             }
             CactEyeAsteroidSpawner.instance.UpdateSpawnRate();
         }
@@ -196,9 +201,9 @@ namespace CactEye2
         {
             Active = false;
             //RevertLightDirection();
-            if (CactEyeConfig.DebugMode)
+            if (HighLogic.CurrentGame.Parameters.CustomParams<CactiSettings>().DebugMode)
             {
-                Log.Info(" Processor deactivated!");
+                Log.Info("Processor deactivated!");
             }
             CactEyeAsteroidSpawner.instance.UpdateSpawnRate();
         }
@@ -244,17 +249,17 @@ namespace CactEye2
 
             Light SunReference = GameObject.Find("Sun").GetComponent<Light>();
 
-            if (CactEyeConfig.DebugMode)
+            if (HighLogic.CurrentGame.Parameters.CustomParams<CactiSettings>().DebugMode)
             {
-                Log.Info(" SunReference: " + SunReference.type.ToString());
+                Log.Info("SunReference: " + SunReference.type.ToString());
             }
 
-            Sun.Instance.sunDirection = FlightGlobals.fetch.VesselTarget.GetTransform().position - FlightGlobals.Bodies[0].position;
+            Sun.Instance.sunDirection = FlightGlobals.fetch.VesselTarget.GetTransform().position - Planetarium.fetch.Sun.position;
 
-            if (CactEyeConfig.DebugMode)
+            if (HighLogic.CurrentGame.Parameters.CustomParams<CactiSettings>().DebugMode)
             {
-                Log.Info(" OriginalSunDirection: " + OriginalSunDirection.ToString());
-                Log.Info(" sunDirection: " + Sun.Instance.sunDirection.ToString());
+                Log.Info("OriginalSunDirection: " + OriginalSunDirection.ToString());
+                Log.Info("sunDirection: " + Sun.Instance.sunDirection.ToString());
             }
 
             //}

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
-using static CactEye2.CactEyeConfigMenu;
+using static CactEye2.InitialSetup;
 
 namespace CactEye2
 {
@@ -30,7 +30,6 @@ namespace CactEye2
         {
             "GalaxyCamera",
             "Camera ScaledSpace",
-            "Camera 01",
             "Camera 00"
         };
 
@@ -76,7 +75,7 @@ namespace CactEye2
                     case "ZP":
                     case "ZN":
                         sbRenderers.Add(allRenderers[i]);
-                        break;
+                                               break;
 
                     default:
                         break;
@@ -138,7 +137,7 @@ namespace CactEye2
             }
             foreach (Camera Cam in CameraObject)
             {
-                if (Cam.name.Contains("ScaledSpace"))
+                if (Cam.name.Contains("Camera ScaledSpace"))
                 {
                     foreach (Renderer r in skyboxRenderers)
                     {
@@ -169,6 +168,7 @@ namespace CactEye2
             RenderTexture.active = CurrentRT;
             return Output;
         }
+
 
         public Texture2D UpdateTexture(CactEyeProcessor CPU)
         {
@@ -219,9 +219,9 @@ namespace CactEye2
             }
             else if (GetCameraByName(SourceName) == null)
             {
-                if(CactEyeConfig.DebugMode)
+                if(HighLogic.CurrentGame.Parameters.CustomParams<CactiSettings>().DebugMode)
                 {
-                    Log.Info(" Camera Not Found: " + SourceName);
+                    Log.Info("Camera Not Found: " + SourceName);
                 }
                 return;
             }
@@ -242,8 +242,9 @@ namespace CactEye2
                 newCam.CopyFrom(GetCameraByName(SourceName));
                 newCam.enabled = true;
                 newCam.targetTexture = ScopeRenderTexture;
-                
-                if (SourceName != "GalaxyCamera")
+
+
+                if (SourceName != "GalaxyCamera" && SourceName != "Camera ScaledSpace")
                 {
                     newCam.transform.position = CameraTransform.position;
                     newCam.transform.forward = CameraTransform.forward;
@@ -251,9 +252,10 @@ namespace CactEye2
                     newCam.fieldOfView = FieldOfView;
                     newCam.farClipPlane = 3e15f;
                 }
-                if(CactEyeConfig.DebugMode)
+
+                if(HighLogic.CurrentGame.Parameters.CustomParams<CactiSettings>().DebugMode)
                 {
-                    Log.Info(" Adding Camera " + newCam.name);
+                    Log.Info("Adding Camera " + newCam.name);
                 }
                 CameraObject.Add(newCam);
                 //Debug.Log("CactEye 2: Debug: Camera[" + Index.ToString() + "]: " + CameraObject[Index].cullingMask.ToString());
@@ -281,7 +283,7 @@ namespace CactEye2
             return null;
         }
 
-        #endregion
+#endregion
 
     }
 }

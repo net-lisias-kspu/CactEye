@@ -19,7 +19,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 using Object = System.Object;
-using static CactEye2.CactEyeConfigMenu;
+using static CactEye2.InitialSetup;
 
 namespace CactEye2
 {

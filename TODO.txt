@@ -1,5 +1,7 @@
 TODO
 
-Add patch to integrate with following mods
-	Space Dust - https://forum.kerbalspaceprogram.com/index.php?/topic/197723-wip-space-dust-atmospheric-and-exospheric-harvesting-nov-3/
-	ScanSAT = https://forum.kerbalspaceprogram.com/index.php?/topic/72679-1101-scansat-v204-real-scanning-real-science-at-warp-speed-september-9-2020/
+
+Occultation
+
+
+Loaded form on-rails, vessel doens't have target selected

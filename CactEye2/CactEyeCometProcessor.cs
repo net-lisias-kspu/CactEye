@@ -1,18 +1,19 @@
 ﻿using UnityEngine;
-using static CactEye2.InitialSetup;
+using static CactEye2.OccultationScienceEventWindow;
 
+#if false
 namespace CactEye2
 {
-    public class CactEyeAsteroidProcessor: CactEyeProcessor
+    public class CactEyeCometProcessor : CactEyeProcessor
     {
-        //Needs to be persistent to allow AsteroidSpawner to pull data.
+        //Needs to be persistent to allow CometSpawner to pull data.
         [KSPField(isPersistant = true)]
         public int DiscoveryRate = 10;
 
         [KSPField(isPersistant = false)]
         public bool ScannerActive = false;
 
-        [KSPEvent(active = false, guiActive = true, guiActiveUnfocused = true, guiName = "Engage Asteroid Scanner", unfocusedRange = 2)]
+        [KSPEvent(active = false, guiActive = true, guiActiveUnfocused = true, guiName = "Engage Comet Scanner", unfocusedRange = 2)]
         public void EngageScanner()
         {
             ScannerActive = true;
@@ -21,7 +22,7 @@ namespace CactEye2
             Events["EngageScanner"].active = false;
         }
 
-        [KSPEvent(active = false, guiActive = true, guiActiveUnfocused = true, guiName = "Disengage Asteroid Scanner", unfocusedRange = 2)]
+        [KSPEvent(active = false, guiActive = true, guiActiveUnfocused = true, guiName = "Disengage Comet Scanner", unfocusedRange = 2)]
         public void DisengageScanner()
         {
             ScannerActive = false;
@@ -53,12 +54,12 @@ namespace CactEye2
             {
                 Active = false;
 
-                if (HighLogic.CurrentGame.Parameters.CustomParams<CactiSettings>().DebugMode)
+                if (CactEyeConfig.DebugMode)
                 {
                     Log.Info("Processor deactivated!");
                 }
             }
-            CactEyeAsteroidSpawner.instance.UpdateSpawnRate();
+            CactEyeCometSpawner.instance.UpdateSpawnRate();
 
             //RevertLightDirection();
         }
@@ -68,7 +69,7 @@ namespace CactEye2
 
             Vessel TargetVessel = FlightGlobals.fetch.VesselTarget.GetVessel();
 
-            //If target is not an asteroid
+            //If target is not an comet
             if (TargetVessel == null || TargetVessel.vesselType != VesselType.SpaceObject)
             {
                 return Type + ": Invalid target type!";
@@ -93,17 +94,17 @@ namespace CactEye2
             else
             {
                 float SciencePoints = 0f;
-                ExperimentID = "CactEyeAsteroid";
-                ScienceExperiment AsteroidExperiment = ResearchAndDevelopment.GetExperiment(ExperimentID);
-                ScienceSubject AsteroidSubject = ResearchAndDevelopment.GetExperimentSubject(AsteroidExperiment, ExperimentSituations.InSpaceHigh, FlightGlobals.ActiveVessel.mainBody, "", "");
+                ExperimentID = "CactEyeComet";
+                ScienceExperiment CometExperiment = ResearchAndDevelopment.GetExperiment(ExperimentID);
+                ScienceSubject CometSubject = ResearchAndDevelopment.GetExperimentSubject(CometExperiment, ExperimentSituations.InSpaceHigh, FlightGlobals.ActiveVessel.mainBody, "", "");
 
-                SciencePoints += AsteroidExperiment.baseValue * AsteroidExperiment.dataScale * maxScience;
+                SciencePoints += CometExperiment.baseValue * CometExperiment.dataScale * maxScience;
 
                 //These two lines cause a bug where the experiment gives an infinite supply of science points.
                 //WideFieldSubject.scientificValue = 1f;
                 //WideFieldSubject.science = 0f;
 
-                if (HighLogic.CurrentGame.Parameters.CustomParams<CactiSettings>().DebugMode)
+                if (CactEyeConfig.DebugMode)
                 {
                     Log.Info("SciencePoints: " + SciencePoints.ToString());
                 }
@@ -111,7 +112,7 @@ namespace CactEye2
                 //Different scopes have different multipliers for the science gains.
                 SciencePoints *= scienceMultiplier;
 
-                ScienceData Data = new ScienceData(SciencePoints, 1f, 0f, AsteroidSubject.id, Type + " " + FlightGlobals.activeTarget.name + " Observation");
+                ScienceData Data = new ScienceData(SciencePoints, 1f, 0f, CometSubject.id, Type + " " + FlightGlobals.activeTarget.name + " Observation");
                 StoredData.Add(Data);
                 ReviewData(Data, Screenshot);
                 return "";
@@ -140,3 +141,5 @@ namespace CactEye2
         }
     }
 }
+
+#endif

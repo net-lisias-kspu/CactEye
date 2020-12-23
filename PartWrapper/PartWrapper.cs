@@ -66,15 +66,28 @@ namespace PartWrapper
 
         float GetScopeEnabled() { return ((ModuleSpaceDustTelescope)scope).Enabled ? 1 : 0; }
         float GetScanSatEnabled() { return ((SCANsat.SCAN_PartModules.SCANsat)scope).scanningNow ? 1 : 0;  }
+
+        bool open = false;
+        public bool IsOpen {  get { return open; } }
         public void Toggle()
         {
             if (PartWrapperInit.HasSpaceDust && partOwner == SPACEDUST)
+            {
                 ToggleSpaceDustScope();
-            else if  (PartWrapperInit.HasScanSat && partOwner == SCANSAT)
+                open = !open;
+            }
+            else if (PartWrapperInit.HasScanSat && partOwner == SCANSAT)
+            {
                 ToggleScanSat();
+                open = !open;
+            }
             else
             {
-                if (aperature != null) aperature.Toggle();
+                if (aperature != null)
+                {
+                    aperature.Toggle();
+                    open = !open;
+                }
             }
         }
 

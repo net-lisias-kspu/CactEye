@@ -97,4 +97,4 @@ CactEye 2 BETA 2
 -Completely rewritten code base for CactEye. 
 -Completely redesigned GUI for the Telescope controls. 
 -Asteroid telescopes should no longer be restricted to Kerbin orbit.
--Occulation experiments are not yet available.
+-Occultation experiments are not yet available.

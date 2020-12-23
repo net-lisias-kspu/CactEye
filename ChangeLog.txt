@@ -1,5 +1,21 @@
 ChangeLog
 
+1.5.2.3
+	Fixed nullref in editor when opening bay on Fungi
+	Fixed power consumption, was being called once every visual frame, now once every physics frame
+	Removed impactTolerance from all parts (not used anymore)
+	Changed references to FlightGlobals.Bodies[0] to Planetarium.fetch.Sun
+	Moved the config settings into the stock settings page
+	Added new experiment: Occultation
+	Created new windows:  Target Selection Window, Occultation Science Event Window (available on KSP, Tracking Station & Flight screens)
+	Replaced calls to Unity.Random with System.Random when not in DEBUG mode
+	Integrated Kerbal Alarm Clock with the Occultation experiment
+	Science return on the Occultation experiment will depend on how big the target is in the viewer
+	Fixed some spelling errors
+	Added Solar Filter to Occultation processor, to allow targeting items close to the sun
+	Science halved if SolarFilter is enabled
+	Disabled the explosions if solar filter is enabled
+
 1.5.2.2
 	Added KSPAssemblyDependency lines to AssemblyInfo for needed libraries
 	Fixed some of the PartWrapper rename whcih was missed
@@ -54,3 +70,5 @@ ChangeLog
 	Fixed a nullref when no processors were installed
 	Added snow to be shown when no processor is active/installed
 	Changed a number of "foreach" to "for (int i ....)" for speed
+
+
