@@ -1,5 +1,9 @@
 ChangeLog
 
+1.5.2.4
+	Added AssemblyFileVersion
+	Updated version file for 1.12
+
 1.5.2.3
 	Fixed nullref in editor when opening bay on Fungi
 	Fixed power consumption, was being called once every visual frame, now once every physics frame

@@ -11,14 +11,12 @@
  * occultation experiment, though there are some other useful functions
  * as well.
 ********************************************************************/
+using SpaceTuxUtility;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using static CactEye2.InitialSetup;
-using SpaceTuxUtility;
-using static CactEye2.Utils;
 
 
 namespace CactEye2
@@ -53,7 +51,7 @@ namespace CactEye2
     * ************************************************************************************************/
     [KSPAddon(KSPAddon.Startup.TrackingStation, false)]
     internal class CactEyeAPI_TrackingStation
-    { 
+    {
     }
 
     class CactEyeAPI : MonoBehaviour
@@ -102,7 +100,7 @@ namespace CactEye2
                 occExpAstCometDict.Clear();
             }
             // Add all celestial bodies (except the Sun) to the bodyChildren dictionary, and their moons to those planets
-            
+
             foreach (CelestialBody body in FlightGlobals.Bodies)
             {
                 if (body != Planetarium.fetch.Sun)
@@ -110,12 +108,12 @@ namespace CactEye2
                     if (!bodyChildren.ContainsKey(body.referenceBody))
                         bodyChildren.Add(body.referenceBody, new List<CelestialBody>());
 
-                        bodyChildren[body.referenceBody].Add(body);
+                    bodyChildren[body.referenceBody].Add(body);
 
                 }
                 else
                     if (!bodyChildren.ContainsKey(body))
-                        bodyChildren.Add(body, new List<CelestialBody>());
+                    bodyChildren.Add(body, new List<CelestialBody>());
             }
 
 #if true
@@ -243,14 +241,14 @@ namespace CactEye2
                             var bodyAngle = (body.position - FlightGlobals.ship_position).normalized;
                             if (bodyInfo.ContainsKey(body))
                             {
-                                bodyInfo[body].bodyDist =bodyDist;
+                                bodyInfo[body].bodyDist = bodyDist;
                                 bodyInfo[body].bodySize = bodySize;
                                 bodyInfo[body].bodyAngle = bodyAngle;
                             }
                             else
                             {
-                                bodyInfo.Add(body, new BodyInfo(bodyDist, bodySize, bodyAngle));                                   
-                               
+                                bodyInfo.Add(body, new BodyInfo(bodyDist, bodySize, bodyAngle));
+
                             }
 
 #if false
@@ -406,8 +404,8 @@ namespace CactEye2
                         if (bodyDist[bodyC] < Vector3d.Distance(FlightGlobals.ship_position, vessel.GetWorldPos3D()) &&
                             Vector3d.Angle((vessel.GetWorldPos3D() - FlightGlobals.ship_position).normalized, bodyAngle[bodyC]) < bodySize[bodyC])
 #endif
-                        {
-                            return bodyC.name;
+                    {
+                        return bodyC.name;
                     }
                 }
             }
@@ -511,7 +509,7 @@ namespace CactEye2
                         return;
                     }
                     else
-                    rndNum = InitialSetup.Random.Range(0f, 0.9f);
+                        rndNum = InitialSetup.Random.Range(0f, 0.9f);
                 }
                 else
                     rndNum = InitialSetup.Random.Range(0f, 0.9f);
@@ -576,7 +574,7 @@ namespace CactEye2
                 Log.Info("1 targetBody is null");
             Log.Info("1 occultation: AddOccultationExpEntry, referenceBody: " + referenceBody.bodyName +
                 ", targetBody: " + targetBody.bodyName + ", time: " + time.ToString("F0") + ", type: " + type);
-            
+
             occExpAstCometDict.Add(referenceBody, new OccultationRecord(referenceBody, time, type, targetBody));
             occExpAstCometDict[referenceBody].AssignTo = assignedTo;
 
@@ -589,7 +587,7 @@ namespace CactEye2
         /// <param name="referenceBody"></param>
         /// <param name="targetAsteroid"></param>
         /// <param name="time"></param>
-        public static void AddOccultationExpEntry(CelestialBody referenceBody, Vessel targetAsteroid, double time, Guid assignedTo )
+        public static void AddOccultationExpEntry(CelestialBody referenceBody, Vessel targetAsteroid, double time, Guid assignedTo)
         {
             Log.Info("2 occultation: AddOccultationExpEntry, referenceBody: " + referenceBody.bodyName + ", targetAsteroid: " + targetAsteroid.GetName() + ", time: " + time.ToString("F0"));
 
