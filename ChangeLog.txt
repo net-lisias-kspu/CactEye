@@ -1,5 +1,8 @@
 ChangeLog
 
+1.5.2.6 - Beta
+	Added missing textures for new telescopes
+
 1.5.2.5 - BETA
 	Added two new telescopes, using model from SpaceDust (Thanks @Nertea)
 	Deprecated following parts
