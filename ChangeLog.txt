@@ -1,5 +1,8 @@
 ChangeLog
 
+1.5.2.7
+	Full release
+
 1.5.2.6 - Beta
 	Added missing textures for new telescopes
 
