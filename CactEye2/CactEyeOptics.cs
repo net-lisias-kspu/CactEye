@@ -41,6 +41,9 @@ namespace CactEye2
         public string CameraPartOwner = "CactEye";
 
         [KSPField]
+        public bool ProcessorNeeded = true;
+
+        [KSPField]
         public Vector3 cameraPosition = Vector3.zero;
         [KSPField]
         public Vector3 cameraForward = Vector3.forward;
@@ -70,7 +73,7 @@ namespace CactEye2
          * instatiate the GUI.
          */
 
-
+        internal Transform localCameratransform;
         public override void OnStart(StartState state)
         {
             partWrapper = new PartWrapper.PartWrapper();
@@ -93,17 +96,22 @@ namespace CactEye2
 
 #endif
             //Attempt to instantiate the GUI
-            var temp = part.FindModelTransform(CameraTransformName);
-
-            if (cameraPosition != Vector3.zero || cameraUp != Vector3.zero)
+             localCameratransform = part.FindModelTransform(CameraTransformName);
+            if (localCameratransform == null)
             {
-                temp.localPosition = cameraPosition;
-                temp.localRotation = Quaternion.LookRotation(cameraForward, cameraUp);
+                Log.Info("CameraTransformName not found: " + CameraTransformName);
+                return;
+            }
+            if (cameraPosition != Vector3.zero || cameraUp != Vector3.zero || cameraForward != Vector3.forward)
+            {
+                Log.Info("Setting camera position");
+                localCameratransform.localPosition = cameraPosition;
+                localCameratransform.localRotation = Quaternion.LookRotation(cameraForward, cameraUp);
             }
 
             try
             {
-                TelescopeControlMenu = new TelescopeMenu(temp);
+                TelescopeControlMenu = new TelescopeMenu(localCameratransform);
 
                 TelescopeControlMenu.scienceMultiplier = this.scienceMultiplier;
                 TelescopeControlMenu.SetSmallOptics(IsSmallOptics);
@@ -122,7 +130,7 @@ namespace CactEye2
                 //Error = true;
                 Log.Error("Exception 1:  Was not able to create the Telescope Control Menu object. You should try re-installing CactEye2 and ensure that old versions of CactEye are deleted.");
                 Log.Error(E.ToString());
-                Log.Error(temp.ToString());
+                Log.Error(localCameratransform.ToString());
             }
 
             if (IsSmallOptics && SmallApertureOpen && !IsDamaged)
@@ -214,14 +222,14 @@ namespace CactEye2
 
                     //Check if we're pointing at the sun
                     Vector3d Heading = (Planetarium.fetch.Sun.position - FlightGlobals.ship_position).normalized;
-                    if (Vector3d.Dot(transform.up, Heading) > 0.9 && HighLogic.CurrentGame.Parameters.CustomParams<CactiSettings>().SunDamage)
+                    if (Vector3d.Dot(localCameratransform.up, Heading) > 0.9 && HighLogic.CurrentGame.Parameters.CustomParams<CactiSettings>().SunDamage)
                     {
                         ScreenMessages.PostScreenMessage("Telescope pointed directly at sun, optics damaged and processors fried!", 6, ScreenMessageStyle.UPPER_CENTER);
                         BreakScope();
                         DestroyProcessors();
                         //Destroy all the processors, should be fun :)
                     }
-                    else if (Vector3d.Dot(transform.up, Heading) > 0.85)
+                    else if (Vector3d.Dot(localCameratransform.up, Heading) > 0.85)
                     {
                         ScreenMessages.PostScreenMessage("Telescope is getting close to the sun. Please make course adjustements before an equipment failure happens!", 6, ScreenMessageStyle.UPPER_CENTER);
                         CheckWarp();
@@ -233,7 +241,7 @@ namespace CactEye2
             //if (TelescopeControlMenu != null)
             if (TelescopeControlMenu.IsGUIVisible)
             {
-                TelescopeControlMenu.FixedUpdate(part, CameraTransformName);
+                TelescopeControlMenu.FixedUpdate(part, this);
             }
         }
 
@@ -340,7 +348,7 @@ namespace CactEye2
          * the player's computer. This could be, in rare cases, thrown when the player's computer runs
          * out of memory.
          * ************************************************************************************************/
-        [KSPEvent(guiActive = true, guiName = "Toggle GUI", active = true)]
+        [KSPEvent(guiActive = true, guiName = "Toggle CactEye GUI", active = true)]
         public void ToggleGUI()
         {
             if (!IsDamaged)

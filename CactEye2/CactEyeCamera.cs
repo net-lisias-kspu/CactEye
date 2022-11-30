@@ -58,6 +58,7 @@ namespace CactEye2
             ScopeTexture2D = new Texture2D(CameraWidth, CameraHeight);
             FullTexture2D = new Texture2D(Screen.width, Screen.height);
 
+            CameraObject.Clear();
             foreach (String camName in CameraNames)
             {
                 CameraSetup(camName);
@@ -268,7 +269,15 @@ namespace CactEye2
          */
         public void UpdatePosition(Transform Position)
         {
+            Log.Info("CactEyeCamera, Updating CameraTransform");
             this.CameraTransform = Position;
+
+            CameraObject.Clear();
+            foreach (String camName in CameraNames)
+            {
+                CameraSetup(camName);
+            }
+
         }
 
         public Camera GetOverlayCamera()

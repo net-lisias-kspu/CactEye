@@ -1,5 +1,10 @@
 ChangeLog
 
+1.5.2.8 
+	Updated technology level for the new parts to match the old
+	Add CactEyeOptions to the BDB scope
+	Fixed path for loading images (broken by new launcher)
+
 1.5.2.7
 	Full release
 
